@@ -4,6 +4,7 @@ import Server
 import time
 import random
 from enum import IntEnum
+from bank import initialize_database
 #######   BANKING PROJECT    #######
 
 ### Simple Test Case ###
@@ -141,6 +142,7 @@ def testing(server:Server.ZmqServerThread):
 
 if __name__ == "__main__":
     my_server = Server.ZmqServerThread()
+    initialize_database()
     while(True):
         if(len(my_server.clients_addr) == 0):
             continue
@@ -152,6 +154,8 @@ if __name__ == "__main__":
             msg = input(f"Initiate evaluation for {addr}?: (y/n)\n")
             if msg == 'y':
                 my_server.bindedClient = addr
-                testing(my_server)
+                while True:
+                    if my_server.receivedMessage:
+                        my_server.process_request(my_server, my_server.receivedMessage)
             else:
                 continue

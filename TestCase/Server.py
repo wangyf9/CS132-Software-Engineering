@@ -71,7 +71,8 @@ class ZmqServerThread(threading.Thread):
             self.messageTimeStamp = int(round(time.time() * 1000)) #UNIX Time Stamp
             self.receivedMessage = contents_str
             print("client:[%s] message:%s\n"%(address_str,contents_str))
-
+            # Process the received message
+            self.process_request(address_str, contents_str)
 
 
     def send_string(self,address:str,msg:str =""):
@@ -107,7 +108,9 @@ class ZmqServerThread(threading.Thread):
         
         elif command == "log_in":
             account_id = params[0]
+            # print("[account_id]",account_id)
             password = params[1]
+            # print("[password]",password)
             if not self.account_exists(account_id):
                 self.send_string(address, "error@A@Invalid account ID")
                 return
@@ -202,7 +205,14 @@ class ZmqServerThread(threading.Thread):
                 transactions_text += (f"{transaction[2]} - {transaction[0]}: ${transaction[1]:.2f} "
                                       f"(Starting Balance: ${transaction[3]:.2f}, Ending Balance: ${transaction[4]:.2f})\n")
             self.send_string(address, f"success@{transactions_text}")
-            
+
+        elif command == "get_balance":
+            account_id = params[0]
+            # print("id ==========",account_id)
+            balance = self.get_balance(account_id)
+            # print("balance ==========",balance)
+            self.send_string(address, f"success@{balance}")
+
     def account_exists(self, account_id: str) -> bool:
         conn = sqlite3.connect('bank.db')
         cursor = conn.cursor()
@@ -241,6 +251,15 @@ class ZmqServerThread(threading.Thread):
             return False
         return result[0] == 0
 
+    def get_balance(self, account_id: str):
+        conn = sqlite3.connect('bank.db')
+        cursor = conn.cursor()
+        cursor.execute('SELECT balance FROM accounts WHERE id = ?', (account_id,))
+        result = cursor.fetchone()
+        conn.close()
+        # print("get success !!!!!!")
+        return result[0]
+    
     def get_password(self, account_id: str) -> str:
         conn = sqlite3.connect('bank.db')
         cursor = conn.cursor()

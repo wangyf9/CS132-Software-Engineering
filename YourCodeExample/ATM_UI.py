@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QMessageBox, QInputDialog
 import sqlite3
-from bank import initialize_database
+# from bank import initialize_database
 from PyQt5.QtGui import QFont
 import time
 import NetClient
@@ -10,12 +10,12 @@ class ATM(QWidget):
         super().__init__()
         self.zmqThread = zmqThread
         self.initUI()
-        self.initConnection()
+        # self.initConnection()
 
-    def initConnection(self):
-        self.conn = sqlite3.connect('bank.db')
-        self.cursor = self.conn.cursor()
-        initialize_database()
+    # def initConnection(self):
+    #     self.conn = sqlite3.connect('bank.db')
+    #     self.cursor = self.conn.cursor()
+    #     initialize_database()
 
     def create_account(self):
         account_id = self.id_input.text()
@@ -37,35 +37,45 @@ class ATM(QWidget):
         QMessageBox.information(self, "Success", "Account created successfully")
         return True
     
-    def login(self):
-            account_id = self.id_input.text()
-            password = self.password_input.text()
+    def log_in(self):
+        account_id = self.id_input.text()
+        password = self.password_input.text()
 
-            # 发送登录请求到后端
-            self.zmqThread.sendMsg(f"login@{account_id}@{password}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
+        # 发送登录请求到后端
+        self.zmqThread.sendMsg(f"log_in@{account_id}@{password}")
+        time.sleep(0.1)  # 等待后端处理
+        response = self.zmqThread.receivedMessage
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+        if response.startswith("error@"):
+            QMessageBox.warning(self, "Error", response.split("@")[2])
+            if response.split("@")[1] == 'A': ## account error
                 self.id_input.clear()
                 self.password_input.clear()
-                return False
+            elif response.split("@")[1] == 'B': ## password error
+                self.password_input.clear()
+            return False
 
-            QMessageBox.information(self, "Success", "Login successful")
-            return True
+        QMessageBox.information(self, "Success", "Log in successful")
+        return True
     
-    def login_successful(self):
+    def log_in_successful(self):
         self.current_account_id = self.id_input.text()  # Save the current logged-in account ID
         self.clear_and_hide_inputs()
         self.subtitle_label.setText('Main Menu')
         self.setup_main_menu_buttons()
 
     def setup_main_menu_buttons(self):
-        # Get the current account balance
-        self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
-        balance = self.cursor.fetchone()[0]
+        self.zmqThread.sendMsg(f"get_balance@{self.current_account_id}")
+        time.sleep(0.1)  # 等待后端处理
+        response = self.zmqThread.receivedMessage
+        balance = float(response.split("@")[1])
         self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
+        self.account_info_label.show()
+        # Get the current account balance
+        # self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
+        # balance = self.cursor.fetchone()[0]
+        # self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
+        # self.account_info_label = QLabel(f"Account ID: {self.current_account_id}", self)
         self.account_info_label.show()
         self.layout.addWidget(self.account_info_label)
         self.close_button.show()
@@ -150,9 +160,11 @@ class ATM(QWidget):
 
             # 发送存款请求到后端
             self.zmqThread.sendMsg(f"deposit_cash@{self.current_account_id}@{amount}")
+
             time.sleep(0.1)  # 等待后端处理
             response = self.zmqThread.receivedMessage
-
+            # print("response info", response.split("@")[0])
+            # print("response info", response.split("@")[1])
             if response.startswith("error@"):
                 QMessageBox.warning(self, "Error", response.split("@")[1])
                 continue
@@ -163,9 +175,12 @@ class ATM(QWidget):
             break
 
     def update_account_info(self):
-        # Get the current account balance
-        self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
-        balance = self.cursor.fetchone()[0]
+        # 发送关闭账户请求到后端
+        self.zmqThread.sendMsg(f"get_balance@{self.current_account_id}")
+        time.sleep(0.1)  # 等待后端处理
+        response = self.zmqThread.receivedMessage
+
+        balance = float(response.split("@")[1])
         # Update account info label
         self.account_info_label.setText(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}")
 
@@ -375,10 +390,10 @@ class ATM(QWidget):
     def confirm_action(self):
         if self.current_mode == 'create':
             if self.create_account():
-                self.login_successful()
+                self.log_in_successful()
         elif self.current_mode == 'login':
-            if self.login():
-                self.login_successful()
+            if self.log_in():
+                self.log_in_successful()
 
 if __name__ == '__main__':
     identity = "Team15" #write your team name here.
