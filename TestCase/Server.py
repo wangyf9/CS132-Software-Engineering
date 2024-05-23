@@ -208,10 +208,8 @@ class ZmqServerThread(threading.Thread):
 
         elif command == "get_balance":
             account_id = params[0]
-            # print("id ==========",account_id)
             balance = self.get_balance(account_id)
-            # print("balance ==========",balance)
-            self.send_string(address, f"success@{balance}")
+            self.send_string(address, f"balance@{balance}")
 
     def account_exists(self, account_id: str) -> bool:
         conn = sqlite3.connect('bank.db')
