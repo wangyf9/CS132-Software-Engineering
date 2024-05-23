@@ -5,9 +5,13 @@ import time
 import NetClient
 
 class APP(QWidget):
-    def __init__(self, zmqThread):
+    # num_apps_opened = 0
+    # app_instances = {}
+
+    def __init__(self, zmqThread, app_id):
         super().__init__()
         self.zmqThread = zmqThread
+        self.app_id = app_id
         self.initUI()
 
     def log_in(self):
@@ -73,9 +77,9 @@ class APP(QWidget):
             self.update_account_info()
             break
 
-    def return_card(self):
+    def log_out(self):
         # 发送退卡请求到后端
-        self.zmqThread.sendMsg("return_card")
+        self.zmqThread.sendMsg("log_out")
         time.sleep(0.1)  # 等待后端处理
         response = self.zmqThread.receivedMessage
 
@@ -83,7 +87,7 @@ class APP(QWidget):
             QMessageBox.warning(self, "Error", response.split("@")[1])
             return
 
-        QMessageBox.information(self, "Success", "Card returned successfully")
+        QMessageBox.information(self, "Success", "Loged out successfully")
         self.current_account_id = None
         self.show_initial_page()
 
@@ -171,7 +175,7 @@ class APP(QWidget):
         self.transfer_money_button = QPushButton('Transfer Money', self)
 
 
-        self.return_button.clicked.connect(self.return_card)
+        self.return_button.clicked.connect(self.log_out)
 
         self.change_password_button.clicked.connect(self.change_password)
         self.transfer_money_button.clicked.connect(self.transfer_money)
@@ -218,7 +222,7 @@ class APP(QWidget):
         self.change_password_button.setFont(font)
         self.transfer_money_button.setFont(font)
         self.query_button.setFont(font)
-        self.setWindowTitle('ATM Interface')
+        self.setWindowTitle(f"App Interface: {self.app_id}")
         self.setGeometry(300, 300, 600, 450)
 
     def show_login_inputs(self):
@@ -274,10 +278,5 @@ class APP(QWidget):
         if self.current_mode == 'login':
             if self.log_in():
                 self.log_in_successful()
-if __name__ == '__main__':
-    identity = "Team15" #write your team name here.
-    zmqThread = NetClient.ZmqClientThread(identity=identity)
-    app = QApplication(sys.argv)
-    ex = APP(zmqThread)
-    ex.show()
-    sys.exit(app.exec_())
+
+

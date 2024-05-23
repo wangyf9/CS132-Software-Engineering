@@ -134,6 +134,9 @@ class ZmqServerThread(threading.Thread):
         elif command == "return_card":
             self.send_string(address, "success@Card returned successfully")
 
+        elif command == "log_out":
+            self.send_string(address, "success@Loged out successfully")
+            
         elif command == "change_password":
             account_id = params[0]
             new_password = params[1]

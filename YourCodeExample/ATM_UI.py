@@ -393,11 +393,3 @@ class ATM(QWidget):
         elif self.current_mode == 'login':
             if self.log_in():
                 self.log_in_successful()
-
-if __name__ == '__main__':
-    identity = "Team15" #write your team name here.
-    zmqThread = NetClient.ZmqClientThread(identity=identity)
-    app = QApplication(sys.argv)
-    ex = ATM(zmqThread)
-    ex.show()
-    sys.exit(app.exec_())
