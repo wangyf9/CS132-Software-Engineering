@@ -3,13 +3,10 @@ from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLa
 import sqlite3
 from bank import initialize_database
 from PyQt5.QtGui import QFont
-import time
 
-
-class ATM(QWidget):
-    def __init__(self, zmqThread):
+class APP(QWidget):
+    def __init__(self):
         super().__init__()
-        self.zmqThread = zmqThread
         self.initUI()
         self.initConnection()
 
@@ -22,40 +19,55 @@ class ATM(QWidget):
         account_id = self.id_input.text()
         password = self.password_input.text()
 
-        # 发送创建账户请求到后端
-        self.zmqThread.sendMsg(f"create_account@{account_id}@{password}")
-        time.sleep(0.1)  # 等待后端处理
-        response = self.zmqThread.receivedMessage
-
-        if response.startswith("error@"):
-            QMessageBox.warning(self, "Error", response.split("@")[2])
-            if response.split("@")[1] == 'A': ## account error
-                self.id_input.clear()
-                self.password_input.clear()
-            elif response.split("@")[1] == 'B': ## password error
-                self.password_input.clear()
+        if not account_id.isdigit() or len(account_id) != 10:
+            QMessageBox.warning(self, "Error", "Account ID must consist of 10 digits")
+            self.id_input.clear()
+            self.password_input.clear()
             return False
+
+        self.cursor.execute("SELECT * FROM accounts WHERE id = ?", (account_id,))
+        existing_account = self.cursor.fetchone()
+        if existing_account:
+            QMessageBox.warning(self, "Error", "Account already exists")
+            self.id_input.clear()
+            self.password_input.clear()
+            return False
+
+        if not (len(password) >= 8 and any(c.isupper() for c in password) and any(c.islower() for c in password) and any(c.isdigit() for c in password)):
+            QMessageBox.warning(self, "Error", "Password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
+            self.password_input.clear()
+            return False
+
+        self.cursor.execute("INSERT INTO accounts (id, password, balance) VALUES (?, ?, 0)", (account_id, password))
+        self.conn.commit()
+
         QMessageBox.information(self, "Success", "Account created successfully")
         return True
-    
+
     def login(self):
-            account_id = self.id_input.text()
-            password = self.password_input.text()
+        account_id = self.id_input.text()
+        password = self.password_input.text()
 
-            # 发送登录请求到后端
-            self.zmqThread.sendMsg(f"login@{account_id}@{password}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
+        if not account_id or not password:
+            QMessageBox.warning(self, "Error", "Please enter account ID and password")
+            return False
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
-                self.id_input.clear()
-                self.password_input.clear()
-                return False
+        self.cursor.execute("SELECT * FROM accounts WHERE id = ?", (account_id,))
+        account = self.cursor.fetchone()
+        if not account:
+            QMessageBox.warning(self, "Error", "Invalid account ID")
+            self.id_input.clear()
+            self.password_input.clear()
+            return False
 
-            QMessageBox.information(self, "Success", "Login successful")
-            return True
-    
+        if account[1] != password:
+            QMessageBox.warning(self, "Error", "Invalid password")
+            self.password_input.clear()
+            return False
+
+        QMessageBox.information(self, "Success", "Login successful")
+        return True
+
     def login_successful(self):
         self.current_account_id = self.id_input.text()  # Save the current logged-in account ID
         self.clear_and_hide_inputs()
@@ -92,15 +104,19 @@ class ATM(QWidget):
             new_password, ok = QInputDialog.getText(self, "Change Password", "Enter new password:")
             if not ok:
                 return
-            # 发送修改密码请求到后端
-            self.zmqThread.sendMsg(f"change_password@{self.current_account_id}@{new_password}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
-
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if not (len(new_password) >= 8 and any(c.isupper() for c in new_password) and any(c.islower() for c in new_password) and any(c.isdigit() for c in new_password)):
+                QMessageBox.warning(self, "Error", "Password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
                 continue
 
+            self.cursor.execute("SELECT password FROM accounts WHERE id = ?", (self.current_account_id,))
+            old_password = self.cursor.fetchone()[0]
+
+            if new_password == old_password:
+                QMessageBox.warning(self, "Error", "New password cannot be the same as the old password")
+                continue
+
+            self.cursor.execute("UPDATE accounts SET password = ? WHERE id = ?", (new_password, self.current_account_id))
+            self.conn.commit()
             QMessageBox.information(self, "Success", "Password changed successfully")
             self.show_initial_page()
             break
@@ -110,35 +126,58 @@ class ATM(QWidget):
             receiver_id, ok = QInputDialog.getText(self, "Transfer Money", "Enter receiver's account ID:")
             if not ok:
                 return
+            if not receiver_id.isdigit() or len(receiver_id) != 10:
+                QMessageBox.warning(self, "Error", "Receiver's account ID must consist of 10 digits")
+                continue
+
+            # Check if the receiver's account exists
+            self.cursor.execute("SELECT * FROM accounts WHERE id = ?", (receiver_id,))
+            receiver_account = self.cursor.fetchone()
+            if not receiver_account:
+                QMessageBox.warning(self, "Error", "Receiver's account does not exist")
+                continue
 
             amount, ok = QInputDialog.getDouble(self, "Transfer Money", "Enter amount to transfer:", decimals=2)
             if not ok:
                 return
-
-            # 发送转账请求到后端
-            self.zmqThread.sendMsg(f"transfer_money@{self.current_account_id}@{receiver_id}@{amount}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
-
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if not (0.01 <= amount <= self.maxDepositAmount):
+                QMessageBox.warning(self, "Error", "Transfer amount must be between $0.01 and $50000.00")
                 continue
 
-            QMessageBox.information(self, "Success", response.split("@")[1])
-            # 更新余额显示
+            # Get the current account balance
+            self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
+            balance = self.cursor.fetchone()[0]
+
+            if amount > balance:
+                QMessageBox.warning(self, "Error", "Insufficient account balance for transfer")
+                continue
+
+            # Get the receiver's account balance
+            receiver_balance = receiver_account[2]  # Assume balance is in the 3rd column (index 2)
+
+            sender_starting_balance = balance
+            sender_ending_balance = balance - amount
+            receiver_starting_balance = receiver_balance
+            receiver_ending_balance = receiver_balance + amount
+
+            # Update the database
+            self.cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?", (sender_ending_balance, self.current_account_id))
+            self.cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?", (receiver_ending_balance, receiver_id))
+
+            # Insert transaction records
+            self.cursor.execute("INSERT INTO transactions (account_id, type, amount, starting_balance, ending_balance) VALUES (?, 'transfer_out', ?, ?, ?)",
+                                (self.current_account_id, amount, sender_starting_balance, sender_ending_balance))
+            self.cursor.execute("INSERT INTO transactions (account_id, type, amount, starting_balance, ending_balance) VALUES (?, 'transfer_in', ?, ?, ?)",
+                                (receiver_id, amount, receiver_starting_balance, receiver_ending_balance))
+            self.conn.commit()
+
+            QMessageBox.information(self, "Success", f"${amount:.2f} transferred successfully")
+            # Update balance display
             self.update_account_info()
             break
 
     def return_card(self):
-        # 发送退卡请求到后端
-        self.zmqThread.sendMsg("return_card")
-        time.sleep(0.1)  # 等待后端处理
-        response = self.zmqThread.receivedMessage
-
-        if response.startswith("error@"):
-            QMessageBox.warning(self, "Error", response.split("@")[1])
-            return
-
+        # Exit account
         QMessageBox.information(self, "Success", "Card returned successfully")
         self.current_account_id = None
         self.show_initial_page()
@@ -149,19 +188,21 @@ class ATM(QWidget):
             if not ok:
                 return
 
-            # 发送存款请求到后端
-            self.zmqThread.sendMsg(f"deposit_cash@{self.current_account_id}@{amount}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
+            if 0.01 <= amount <= self.maxDepositAmount:
+                self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
+                starting_balance = self.cursor.fetchone()[0]
+                ending_balance = starting_balance + amount
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
-                continue
-
-            QMessageBox.information(self, "Success", response.split("@")[1])
-            # 更新余额显示
-            self.update_account_info()
-            break
+                self.cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?", (ending_balance, self.current_account_id))
+                self.cursor.execute("INSERT INTO transactions (account_id, type, amount, starting_balance, ending_balance) VALUES (?, 'deposit', ?, ?, ?)",
+                                    (self.current_account_id, amount, starting_balance, ending_balance))
+                self.conn.commit()
+                QMessageBox.information(self, "Success", f"${amount:.2f} deposited successfully")
+                # Update balance display
+                self.update_account_info()
+                break
+            else:
+                QMessageBox.warning(self, "Error", "Deposit amount must be between $0.01 and $50000.00")
 
     def update_account_info(self):
         # Get the current account balance
@@ -175,35 +216,43 @@ class ATM(QWidget):
             amount, ok = QInputDialog.getDouble(self, "Withdraw Cash", "Enter amount to withdraw:", decimals=2)
             if not ok:
                 return
+            # Get the current account balance
+            self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
+            balance = self.cursor.fetchone()[0]
 
-            # 发送取款请求到后端
-            self.zmqThread.sendMsg(f"withdraw_cash@{self.current_account_id}@{amount}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
-
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if amount > balance:
+                QMessageBox.warning(self, "Error", "Insufficient account balance for withdrawal")
                 continue
 
-            QMessageBox.information(self, "Success", response.split("@")[1])
-            # 更新余额显示
-            self.update_account_info()
-            break
+            if 0.01 <= amount <= self.maxDepositAmount:
+                starting_balance = balance
+                ending_balance = balance - amount
+                self.cursor.execute("UPDATE accounts SET balance = ? WHERE id = ?", (ending_balance, self.current_account_id))
+                self.cursor.execute("INSERT INTO transactions (account_id, type, amount, starting_balance, ending_balance) VALUES (?, 'withdraw', ?, ?, ?)",
+                                    (self.current_account_id, amount, starting_balance, ending_balance))
+                self.conn.commit()
+                QMessageBox.information(self, "Success", f"${amount:.2f} withdrawn successfully")
+                # Update balance display
+                self.update_account_info()
+                break
+            else:
+                QMessageBox.warning(self, "Error", "Withdrawal amount must be between $0.01 and $50000.00")
 
     def close_account(self):
+        # Get the current account balance
+        self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
+        balance = self.cursor.fetchone()[0]
+
+        if balance != 0:
+            QMessageBox.warning(self, "Error", "Account balance must be zero to close the account")
+            return
+
         reply = QMessageBox.question(self, 'Confirm', 'Are you sure you want to close your account?',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            # 发送关闭账户请求到后端
-            self.zmqThread.sendMsg(f"close_account@{self.current_account_id}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
-
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
-                return
-
+            self.cursor.execute("DELETE FROM accounts WHERE id = ?", (self.current_account_id,))
+            self.conn.commit()
             QMessageBox.information(self, "Success", "Account closed successfully")
             self.current_account_id = None  # Reset the current account ID
             self.show_initial_page()
@@ -235,11 +284,21 @@ class ATM(QWidget):
 
     def query(self):
         if self.current_account_id:
-            # 发送查询请求到后端
-            self.zmqThread.sendMsg(f"query@{self.current_account_id}")
-            time.sleep(0.1)  # 等待后端处理
-            response = self.zmqThread.receivedMessage
-            QMessageBox.information(self, "Transaction History", response.split("@")[1])
+            self.cursor.execute("SELECT password, balance FROM accounts WHERE id = ?", (self.current_account_id,))
+            account_info = self.cursor.fetchone()
+            password = account_info[0]
+            balance = account_info[1]
+
+            transactions_text = f"Password: {password}\nBalance: ${balance:.2f}\n\nTransactions:\n"
+            self.cursor.execute("SELECT type, amount, date, starting_balance, ending_balance FROM transactions WHERE account_id = ?", (self.current_account_id,))
+            transactions = self.cursor.fetchall()
+            for transaction in transactions:
+                transactions_text += (f"{transaction[2]} - {transaction[0]}: ${transaction[1]:.2f} "
+                                    f"(Starting Balance: ${transaction[3]:.2f}, Ending Balance: ${transaction[4]:.2f})\n")
+                    
+            QMessageBox.information(self, "Transaction History", transactions_text)
+        else:
+            QMessageBox.warning(self, "Error", "No account logged in!")
 
     def initUI(self):
         self.maxDepositAmount = 50000.00
@@ -336,7 +395,7 @@ class ATM(QWidget):
         self.change_password_button.setFont(font)
         self.transfer_money_button.setFont(font)
         self.query_button.setFont(font)
-        self.setWindowTitle('ATM Interface')
+        self.setWindowTitle('APP Interface')
         self.setGeometry(300, 300, 600, 450)
 
     def show_create_inputs(self):
@@ -382,9 +441,7 @@ class ATM(QWidget):
                 self.login_successful()
 
 if __name__ == '__main__':
-    identity = "Team15" #write your team name here.
-    zmqThread = NetClient.ZmqClientThread(identity=identity)
     app = QApplication(sys.argv)
-    ex = ATM(zmqThread)
+    ex = APP()
     ex.show()
     sys.exit(app.exec_())

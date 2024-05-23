@@ -4,8 +4,7 @@ import sqlite3
 from bank import initialize_database
 from PyQt5.QtGui import QFont
 import time
-
-
+import NetClient
 class ATM(QWidget):
     def __init__(self, zmqThread):
         super().__init__()
