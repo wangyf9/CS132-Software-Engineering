@@ -3,6 +3,7 @@ import sys
 import APP_UI
 import NetClient
 import ATM_UI
+
 class MainWindow(QMainWindow):
     def __init__(self, zmqThread):
         super().__init__()
@@ -21,7 +22,7 @@ class MainWindow(QMainWindow):
         closeAppButton.setGeometry(50, 150, 200, 50)
 
         self.setWindowTitle('Main Window')
-        self.setGeometry(100, 100, 300, 250)
+        self.setGeometry(100, 100, 400, 300)
 
     def open_app(self):
         app_id, ok = QInputDialog.getText(self, 'Open App', 'Enter app ID:')
@@ -39,7 +40,8 @@ class MainWindow(QMainWindow):
                 return
 
             self.num_apps_opened += 1
-            new_app = APP_UI.APP(zmqThread, app_id)
+            new_app = APP_UI.APP(self.zmqThread, app_id)
+            self.connect_signals(new_app)
             new_app.show()
             self.app_instances[app_id] = new_app
 
@@ -56,6 +58,13 @@ class MainWindow(QMainWindow):
                 self.num_apps_opened -= 1
             else:
                 QMessageBox.warning(self, "Error", "App with specified ID is not open.")
+
+    def connect_signals(self, app_instance):
+        app_instance.closed.connect(self.handle_app_closed)
+
+    def handle_app_closed(self, app_id):
+        del self.app_instances[app_id]
+        self.num_apps_opened -= 1
 
 if __name__ == '__main__':
     identity = "Team15"

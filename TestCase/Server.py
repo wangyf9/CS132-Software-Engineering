@@ -101,7 +101,7 @@ class ZmqServerThread(threading.Thread):
                 self.send_string(address, "error@A@Account already exists")
                 return
             if not (len(password) >= 8 and any(c.isupper() for c in password) and any(c.islower() for c in password) and any(c.isdigit() for c in password)):
-                self.send_string(address, "error@A@Password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
+                self.send_string(address, "error@B@Password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
                 return
             self.create_account(account_id, password)
             self.send_string(address, "success@Account created successfully")
@@ -160,8 +160,8 @@ class ZmqServerThread(threading.Thread):
                 self.send_string(address, "error@Receiver's account ID must consist of 10 digits")
                 return
             
-            if not self.account_exists(sender_id):
-                self.send_string(address, "error@Invalid sender account ID")
+            if not self.account_exists(receiver_id):
+                self.send_string(address, "error@Invalid receiver account ID")
                 return
             
             if amount <= 0 or amount > 50000:
@@ -220,6 +220,7 @@ class ZmqServerThread(threading.Thread):
         cursor.execute('SELECT 1 FROM accounts WHERE id = ?', (account_id,))
         exists = cursor.fetchone() is not None
         conn.close()
+        # print("whether_Exist=============",exists)
         return exists
     
     def verify_password(self, account_id: str, password: str) -> bool:

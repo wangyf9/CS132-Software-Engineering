@@ -9,12 +9,6 @@ class ATM(QWidget):
         super().__init__()
         self.zmqThread = zmqThread
         self.initUI()
-        # self.initConnection()
-
-    # def initConnection(self):
-    #     self.conn = sqlite3.connect('bank.db')
-    #     self.cursor = self.conn.cursor()
-    #     initialize_database()
 
     def create_account(self):
         account_id = self.id_input.text()
@@ -259,7 +253,7 @@ class ATM(QWidget):
         self.current_mode = None
         self.current_account_id = None
         self.account_info_label = None
-        self.label = QLabel('Banking System', self)
+        self.label = QLabel('Banking System ATM', self)
         # Subtitle
         self.subtitle_label = QLabel('', self)
         self.create_button = QPushButton('Create Account', self)

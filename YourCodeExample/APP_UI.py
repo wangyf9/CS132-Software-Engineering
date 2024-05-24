@@ -1,12 +1,13 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QMessageBox, QInputDialog
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QCloseEvent, QFont
 import time
 import NetClient
+from PyQt5.QtCore import pyqtSignal
 
 class APP(QWidget):
-    # num_apps_opened = 0
-    # app_instances = {}
+    # This is a front end communication signal
+    closed = pyqtSignal(int)
 
     def __init__(self, zmqThread, app_id):
         super().__init__()
@@ -140,8 +141,8 @@ class APP(QWidget):
         self.current_mode = None
         self.current_account_id = None
         self.account_info_label = None
-        self.label = QLabel('Banking System', self)
-        # Subtitle
+        self.label = QLabel(f'Banking System Application: #{self.app_id}', self)
+        # Subtitle(f"App Interface: #{self.app_id}")
         self.subtitle_label = QLabel('', self)
 
         self.login_button = QPushButton('Log In', self)
@@ -222,7 +223,7 @@ class APP(QWidget):
         self.change_password_button.setFont(font)
         self.transfer_money_button.setFont(font)
         self.query_button.setFont(font)
-        self.setWindowTitle(f"App Interface: {self.app_id}")
+        self.setWindowTitle(f"App Interface: #{self.app_id}")
         self.setGeometry(300, 300, 600, 450)
 
     def show_login_inputs(self):
@@ -278,5 +279,9 @@ class APP(QWidget):
         if self.current_mode == 'login':
             if self.log_in():
                 self.log_in_successful()
+    
+    def closeEvent(self, event):
+        self.closed.emit(self.app_id)
+        event.accept()  
 
 
