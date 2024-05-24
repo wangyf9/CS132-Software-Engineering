@@ -10,7 +10,10 @@ class MainWindow(QMainWindow):
         self.zmqThread = zmqThread
         self.num_apps_opened = 0
         self.app_instances = {}
+        self.logging_in_accounts = {}
         self.initUI()
+        self.atm = ATM_UI.ATM(zmqThread)
+        self.atm.show()
 
     def initUI(self):
         openAppButton = QPushButton('Open App', self)
@@ -40,7 +43,7 @@ class MainWindow(QMainWindow):
                 return
 
             self.num_apps_opened += 1
-            new_app = APP_UI.APP(self.zmqThread, app_id)
+            new_app = APP_UI.APP(self.zmqThread, app_id, self)
             self.connect_signals(new_app)
             new_app.show()
             self.app_instances[app_id] = new_app
@@ -61,17 +64,27 @@ class MainWindow(QMainWindow):
 
     def connect_signals(self, app_instance):
         app_instance.closed.connect(self.handle_app_closed)
+        # app_instance.loginStatus.connect(self.atm.handle_login_status_changed)
 
     def handle_app_closed(self, app_id):
         del self.app_instances[app_id]
         self.num_apps_opened -= 1
+    
+    def whether_logging_in(self, account_id):
+        return self.logging_in_accounts.get(account_id) is not None
 
+    def set_log_status(self, account_id, app_id):
+        if app_id is not None:
+            self.logging_in_accounts[account_id] = app_id
+        else:
+            if account_id in self.logging_in_accounts:
+                del self.logging_in_accounts[account_id]
+                
 if __name__ == '__main__':
     identity = "Team15"
     zmqThread = NetClient.ZmqClientThread(identity=identity)
     app = QApplication(sys.argv)
     mainWindow = MainWindow(zmqThread)
     mainWindow.show()
-    ex = ATM_UI.ATM(zmqThread)
-    ex.show()
+
     sys.exit(app.exec_())

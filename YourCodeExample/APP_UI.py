@@ -8,11 +8,12 @@ from PyQt5.QtCore import pyqtSignal
 class APP(QWidget):
     # This is a front end communication signal
     closed = pyqtSignal(int)
-
-    def __init__(self, zmqThread, app_id):
+    loginStatus = pyqtSignal(int, bool)  # Signal with account ID and login status
+    def __init__(self, zmqThread, app_id, main_window):
         super().__init__()
         self.zmqThread = zmqThread
         self.app_id = app_id
+        self.main_window = main_window
         self.initUI()
 
     def log_in(self):
@@ -32,7 +33,14 @@ class APP(QWidget):
             elif response.split("@")[1] == 'B': ## password error
                 self.password_input.clear()
             return False
+        
+        if self.main_window.whether_logging_in(account_id):
+            QMessageBox.warning(self, "Error", f"Account {account_id} is already logged in another App.")
+            return False
+        
 
+        self.loginStatus.emit(account_id, True)
+        self.main_window.set_log_status(account_id, self.app_id)
         QMessageBox.information(self, "Success", "Log in successful")
         return True
     
@@ -87,6 +95,8 @@ class APP(QWidget):
         if response.startswith("error@"):
             QMessageBox.warning(self, "Error", response.split("@")[1])
             return
+        self.loginStatus.emit(self.current_account_id, False)
+        self.main_window.set_log_status(self.current_account_id, None)
 
         QMessageBox.information(self, "Success", "Loged out successfully")
         self.current_account_id = None
@@ -170,7 +180,7 @@ class APP(QWidget):
         self.query_button.clicked.connect(self.query)
         self.query_button.hide()
 
-        self.return_button = QPushButton('Return Card', self)
+        self.return_button = QPushButton('Log Out', self)
 
         self.change_password_button = QPushButton('Change Password', self)
         self.transfer_money_button = QPushButton('Transfer Money', self)
@@ -282,6 +292,9 @@ class APP(QWidget):
     
     def closeEvent(self, event):
         self.closed.emit(self.app_id)
-        event.accept()  
+        if self.current_account_id is not None:
+            self.loginStatus.emit(self.current_account_id, False)
+            self.main_window.set_log_status(self.current_account_id, None)
+        event.accept()  # Let the window close
 
 
