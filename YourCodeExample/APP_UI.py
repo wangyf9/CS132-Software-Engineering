@@ -8,7 +8,7 @@ from PyQt5.QtCore import pyqtSignal
 class APP(QWidget):
     # This is a front end communication signal
     closed = pyqtSignal(int)
-    loginStatus = pyqtSignal(int, bool)  # Signal with account ID and login status
+    operationInProgress = pyqtSignal(int, bool)
     def __init__(self, zmqThread, app_id, main_window):
         super().__init__()
         self.zmqThread = zmqThread
@@ -36,19 +36,32 @@ class APP(QWidget):
         
         if self.main_window.whether_logging_in(account_id):
             QMessageBox.warning(self, "Error", f"Account {account_id} is already logged in another App.")
+            self.id_input.clear()
+            self.password_input.clear()
             return False
         
-
-        self.loginStatus.emit(account_id, True)
         self.main_window.set_log_status(account_id, self.app_id)
         QMessageBox.information(self, "Success", "Log in successful")
         return True
     
     def change_password(self):
+
+        if self.main_window.whether_processing(self.current_account_id):
+            QMessageBox.warning(self, "Error", "Another operation is in progress in ATM.")
+            return
+
         while True:
+            self.operationInProgress.emit(self.current_account_id, True)
+            self.main_window.set_operatoin_status(self.current_account_id, True)
+
             new_password, ok = QInputDialog.getText(self, "Change Password", "Enter new password:")
             if not ok:
+
+                self.operationInProgress.emit(self.current_account_id, False)
+                self.main_window.set_operatoin_status(self.current_account_id, False)
+
                 return
+            
             # 发送修改密码请求到后端
             self.zmqThread.sendMsg(f"change_password@{self.current_account_id}@{new_password}")
             time.sleep(0.1)  # 等待后端处理
@@ -62,14 +75,30 @@ class APP(QWidget):
             self.show_initial_page()
             break
 
+        self.operationInProgress.emit(self.current_account_id, False)
+        self.main_window.set_operatoin_status(self.current_account_id, False)
+
     def transfer_money(self):
+
+        if self.main_window.whether_processing(self.current_account_id):
+            QMessageBox.warning(self, "Error", "Another operation is in progress.")
+            return
+        
         while True:
+
+            self.operationInProgress.emit(self.current_account_id, True)
+            self.main_window.set_operatoin_status(self.current_account_id, True)
+
             receiver_id, ok = QInputDialog.getText(self, "Transfer Money", "Enter receiver's account ID:")
             if not ok:
+                self.operationInProgress.emit(self.current_account_id, False)
+                self.main_window.set_operatoin_status(self.current_account_id, False)
                 return
 
             amount, ok = QInputDialog.getDouble(self, "Transfer Money", "Enter amount to transfer:", decimals=2)
             if not ok:
+                self.operationInProgress.emit(self.current_account_id, False)
+                self.main_window.set_operatoin_status(self.current_account_id, False)
                 return
 
             # 发送转账请求到后端
@@ -86,6 +115,9 @@ class APP(QWidget):
             self.update_account_info()
             break
 
+        self.operationInProgress.emit(self.current_account_id, False)
+        self.main_window.set_operatoin_status(self.current_account_id, False)
+
     def log_out(self):
         # 发送退卡请求到后端
         self.zmqThread.sendMsg("log_out")
@@ -95,7 +127,7 @@ class APP(QWidget):
         if response.startswith("error@"):
             QMessageBox.warning(self, "Error", response.split("@")[1])
             return
-        self.loginStatus.emit(self.current_account_id, False)
+
         self.main_window.set_log_status(self.current_account_id, None)
 
         QMessageBox.information(self, "Success", "Loged out successfully")
@@ -293,7 +325,6 @@ class APP(QWidget):
     def closeEvent(self, event):
         self.closed.emit(self.app_id)
         if self.current_account_id is not None:
-            self.loginStatus.emit(self.current_account_id, False)
             self.main_window.set_log_status(self.current_account_id, None)
         event.accept()  # Let the window close
 

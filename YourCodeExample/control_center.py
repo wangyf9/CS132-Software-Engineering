@@ -1,18 +1,21 @@
 from PyQt5.QtWidgets import QMainWindow, QPushButton, QMessageBox, QInputDialog, QApplication
+from PyQt5.QtCore import pyqtSignal
 import sys
 import APP_UI
 import NetClient
 import ATM_UI
 
 class MainWindow(QMainWindow):
+    operationInProgress = pyqtSignal(int, bool)  # Signal with account ID and operation status
     def __init__(self, zmqThread):
         super().__init__()
         self.zmqThread = zmqThread
         self.num_apps_opened = 0
         self.app_instances = {}
         self.logging_in_accounts = {}
+        self.account_operations = {}  # Account ID to operation status mapping
         self.initUI()
-        self.atm = ATM_UI.ATM(zmqThread)
+        self.atm = ATM_UI.ATM(zmqThread, self)
         self.atm.show()
 
     def initUI(self):
@@ -64,7 +67,7 @@ class MainWindow(QMainWindow):
 
     def connect_signals(self, app_instance):
         app_instance.closed.connect(self.handle_app_closed)
-        # app_instance.loginStatus.connect(self.atm.handle_login_status_changed)
+        app_instance.operationInProgress.connect(self.set_operatoin_status)
 
     def handle_app_closed(self, app_id):
         del self.app_instances[app_id]
@@ -79,7 +82,17 @@ class MainWindow(QMainWindow):
         else:
             if account_id in self.logging_in_accounts:
                 del self.logging_in_accounts[account_id]
-                
+
+    def set_operatoin_status(self, account_id, in_progress):
+        if in_progress:
+            self.account_operations[account_id] = True
+        else:
+            if account_id in self.account_operations:
+                del self.account_operations[account_id]
+
+    def whether_processing(self, account_id):
+        return self.account_operations.get(account_id, False)
+    
 if __name__ == '__main__':
     identity = "Team15"
     zmqThread = NetClient.ZmqClientThread(identity=identity)
