@@ -18,6 +18,7 @@ class Controller(QMainWindow):
         self.initUI()
         self.atm = ATM_UI.ATM(zmqThread, self)
         self.atm.show()
+        self.atm.password_changed.connect(self.handle_password_changed)
 
     def initUI(self):
         openAppButton = QPushButton('Open App', self)
@@ -76,6 +77,7 @@ class Controller(QMainWindow):
     def connect_signals(self, app_instance):
         app_instance.closed.connect(self.handle_app_closed)
         app_instance.operationInProgress.connect(self.set_operatoin_status)
+        app_instance.password_changed.connect(self.handle_password_changed_app)
 
     def handle_app_closed(self, app_id):
         del self.app_instances[str(app_id)]
@@ -100,6 +102,15 @@ class Controller(QMainWindow):
 
     def whether_processing(self, account_id):
         return self.account_operations.get(account_id, False)
+    
+    def handle_password_changed(self, account_id):
+        for app_id, app_instance in self.app_instances.items():
+            if app_instance.logged_in and (int(app_instance.current_account_id) == account_id):
+                app_instance.log_out()
+
+    def handle_password_changed_app(self, account_id):
+        if int(self.atm.current_account_id) == account_id:
+            self.atm.return_card()
 
     def reset(self):
         confirmation = QMessageBox.question(self, 'Reset Database', 'Are you sure you want to reset the database?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)

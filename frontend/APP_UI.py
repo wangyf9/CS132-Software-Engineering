@@ -7,11 +7,14 @@ class APP(QWidget):
     # This is a front end communication signal
     closed = pyqtSignal(int)
     operationInProgress = pyqtSignal(int, bool)
+    password_changed = pyqtSignal(int)
+
     def __init__(self, zmqThread, app_id, main_window):
         super().__init__()
         self.zmqThread = zmqThread
         self.app_id = app_id
         self.main_window = main_window
+        self.logged_in = False
         self.initUI()
 
     def log_in(self):
@@ -39,6 +42,7 @@ class APP(QWidget):
             return False
         
         self.main_window.set_log_status(account_id, self.app_id)
+        self.logged_in = True
         QMessageBox.information(self, "Success", "Log in successfully")
         return True
     
@@ -65,9 +69,12 @@ class APP(QWidget):
                 continue
 
             QMessageBox.information(self, "Success", "Password changed successfully")
-            self.show_initial_page()
+            return_id = int(self.current_account_id)
+            self.password_changed.emit(return_id)
+            self.log_out()
             break
         self.operationInProgress.emit(self.current_account_id, False)
+
         self.main_window.set_operatoin_status(self.current_account_id, False)
 
     def transfer_money(self):
@@ -109,14 +116,10 @@ class APP(QWidget):
         self.zmqThread.sendMsg("log_out")
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
-
-        if response.startswith("error@"):
-            QMessageBox.warning(self, "Error", response.split("@")[1])
-            return
-
         self.main_window.set_log_status(self.current_account_id, None)
         QMessageBox.information(self, "Success", "Logged out successfully")
         self.current_account_id = None
+        self.logged_in = False
         self.show_initial_page()
 
     def update_account_info(self):

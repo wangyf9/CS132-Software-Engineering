@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QMessageBox, QInputDialog
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import pyqtSignal
 import time
 
 class ATM(QWidget):
+    password_changed = pyqtSignal(int)
+
     def __init__(self, zmqThread, main_window):
         super().__init__()
         self.zmqThread = zmqThread
@@ -47,7 +50,7 @@ class ATM(QWidget):
                 self.password_input.clear()
             return False
 
-        QMessageBox.information(self, "Success", "Log in successfully")
+        QMessageBox.information(self, "Success", "Insert card successfully")
         return True
     
     def insert_card_successful(self):
@@ -60,6 +63,7 @@ class ATM(QWidget):
         self.zmqThread.sendMsg(f"get_balance@{self.current_account_id}")
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
+        print("response",response)
         balance = float(response.split("@")[1])
         self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
         self.account_info_label.show()
@@ -102,10 +106,13 @@ class ATM(QWidget):
                 continue
 
             QMessageBox.information(self, "Success", "Password changed successfully")
-            self.show_initial_page()
+
+            return_id = int(self.current_account_id)
+            self.password_changed.emit(return_id)
+            self.main_window.set_operatoin_status(self.current_account_id, False)
+            self.return_card()
             break
 
-        self.main_window.set_operatoin_status(self.current_account_id, False)
 
     def transfer_money(self):
         if self.main_window.whether_processing(self.current_account_id):
@@ -144,11 +151,6 @@ class ATM(QWidget):
         self.zmqThread.sendMsg("return_card")
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
-
-        if response.startswith("error@"):
-            QMessageBox.warning(self, "Error", response.split("@")[1])
-            return
-
         QMessageBox.information(self, "Success", "Card returned successfully")
         self.current_account_id = None
         self.show_initial_page()
