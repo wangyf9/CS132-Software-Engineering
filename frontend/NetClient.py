@@ -3,7 +3,6 @@ import os
 import threading
 import time
 
-
 class ZmqClientThread(threading.Thread):
 
     def __init__(self,serverIp="127.0.0.1", port="27132", identity="GroupX"):

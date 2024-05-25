@@ -1,8 +1,6 @@
-import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QMessageBox, QInputDialog
 from PyQt5.QtGui import QFont
 import time
-import NetClient
 
 class ATM(QWidget):
     def __init__(self, zmqThread, main_window):
@@ -15,44 +13,44 @@ class ATM(QWidget):
         account_id = self.id_input.text()
         password = self.password_input.text()
 
-        # 发送创建账户请求到后端
+        # Send create account request to backend
         self.zmqThread.sendMsg(f"create_account@{account_id}@{password}")
-        time.sleep(0.1)  # 等待后端处理
+        time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
 
         if response.startswith("error@"):
             QMessageBox.warning(self, "Error", response.split("@")[2])
-            if response.split("@")[1] == 'A': ## account error
+            if response.split("@")[1] == 'A':  # Account error
                 self.id_input.clear()
                 self.password_input.clear()
-            elif response.split("@")[1] == 'B': ## password error
+            elif response.split("@")[1] == 'B':  # Password error
                 self.password_input.clear()
             return False
         QMessageBox.information(self, "Success", "Account created successfully")
         return True
     
-    def log_in(self):
+    def insert_card(self):
         account_id = self.id_input.text()
         password = self.password_input.text()
 
-        # 发送登录请求到后端
-        self.zmqThread.sendMsg(f"log_in@{account_id}@{password}")
-        time.sleep(0.1)  # 等待后端处理
+        # Send login request to backend
+        self.zmqThread.sendMsg(f"insert_card@{account_id}@{password}")
+        time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
 
         if response.startswith("error@"):
             QMessageBox.warning(self, "Error", response.split("@")[2])
-            if response.split("@")[1] == 'A': ## account error
+            if response.split("@")[1] == 'A':  # Account error
                 self.id_input.clear()
                 self.password_input.clear()
-            elif response.split("@")[1] == 'B': ## password error
+            elif response.split("@")[1] == 'B':  # Password error
                 self.password_input.clear()
             return False
 
-        QMessageBox.information(self, "Success", "Log in successful")
+        QMessageBox.information(self, "Success", "Log in successfully")
         return True
     
-    def log_in_successful(self):
+    def insert_card_successful(self):
         self.current_account_id = self.id_input.text()  # Save the current logged-in account ID
         self.clear_and_hide_inputs()
         self.subtitle_label.setText('Main Menu')
@@ -60,19 +58,13 @@ class ATM(QWidget):
 
     def setup_main_menu_buttons(self):
         self.zmqThread.sendMsg(f"get_balance@{self.current_account_id}")
-        time.sleep(0.1)  # 等待后端处理
+        time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
         balance = float(response.split("@")[1])
         self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
         self.account_info_label.show()
-        # Get the current account balance
-        # self.cursor.execute("SELECT balance FROM accounts WHERE id = ?", (self.current_account_id,))
-        # balance = self.cursor.fetchone()[0]
-        # self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
-        # self.account_info_label = QLabel(f"Account ID: {self.current_account_id}", self)
-        self.account_info_label.show()
         self.layout.addWidget(self.account_info_label)
-        self.close_button.show()
+        self.cancel_button.show()
         self.return_button.show()
         self.withdraw_button.show()
         self.deposit_button.show()
@@ -91,20 +83,18 @@ class ATM(QWidget):
         self.back_button.hide()
 
     def change_password(self):
-
         if self.main_window.whether_processing(self.current_account_id):
             QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
             return
-        
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True)
             new_password, ok = QInputDialog.getText(self, "Change Password", "Enter new password:")
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
-            # 发送修改密码请求到后端
+            # Send change password request to backend
             self.zmqThread.sendMsg(f"change_password@{self.current_account_id}@{new_password}")
-            time.sleep(0.1)  # 等待后端处理
+            time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
             if response.startswith("error@"):
@@ -118,11 +108,9 @@ class ATM(QWidget):
         self.main_window.set_operatoin_status(self.current_account_id, False)
 
     def transfer_money(self):
-
         if self.main_window.whether_processing(self.current_account_id):
             QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
             return
-
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True)
             receiver_id, ok = QInputDialog.getText(self, "Transfer Money", "Enter receiver's account ID:")
@@ -135,9 +123,9 @@ class ATM(QWidget):
                 self.main_window.set_operatoin_status(self.current_account_id, False)
                 return
 
-            # 发送转账请求到后端
+            # Send transfer money request to backend
             self.zmqThread.sendMsg(f"transfer_money@{self.current_account_id}@{receiver_id}@{amount}")
-            time.sleep(0.1)  # 等待后端处理
+            time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
             if response.startswith("error@"):
@@ -145,16 +133,16 @@ class ATM(QWidget):
                 continue
 
             QMessageBox.information(self, "Success", response.split("@")[1])
-            # 更新余额显示
+            # Update account info
             self.update_account_info()
             break
 
         self.main_window.set_operatoin_status(self.current_account_id, False)
 
     def return_card(self):
-        # 发送退卡请求到后端
+        # Send return card request to backend
         self.zmqThread.sendMsg("return_card")
-        time.sleep(0.1)  # 等待后端处理
+        time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
 
         if response.startswith("error@"):
@@ -176,10 +164,10 @@ class ATM(QWidget):
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
 
-            # 发送存款请求到后端
+            # Send deposit cash request to backend
             self.zmqThread.sendMsg(f"deposit_cash@{self.current_account_id}@{amount}")
 
-            time.sleep(0.1)  # 等待后端处理
+            time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
             # print("response info", response.split("@")[0])
             # print("response info", response.split("@")[1])
@@ -188,28 +176,24 @@ class ATM(QWidget):
                 continue
 
             QMessageBox.information(self, "Success", response.split("@")[1])
-            # 更新余额显示
+            # Update account info
             self.update_account_info()
             break
-
         self.main_window.set_operatoin_status(self.current_account_id, False)        
 
     def update_account_info(self):
-        # 发送关闭账户请求到后端
+        # Send get balance request to backend
         self.zmqThread.sendMsg(f"get_balance@{self.current_account_id}")
-        time.sleep(0.1)  # 等待后端处理
+        time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
-
         balance = float(response.split("@")[1])
         # Update account info label
         self.account_info_label.setText(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}")
 
     def withdraw_cash(self):
-
         if self.main_window.whether_processing(self.current_account_id):
             QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
             return
-
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
             amount, ok = QInputDialog.getDouble(self, "Withdraw Cash", "Enter amount to withdraw:", decimals=2)
@@ -217,9 +201,9 @@ class ATM(QWidget):
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
 
-            # 发送取款请求到后端
+            # Send withdraw cash request to backend
             self.zmqThread.sendMsg(f"withdraw_cash@{self.current_account_id}@{amount}")
-            time.sleep(0.1)  # 等待后端处理
+            time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
             if response.startswith("error@"):
@@ -227,24 +211,22 @@ class ATM(QWidget):
                 continue
 
             QMessageBox.information(self, "Success", response.split("@")[1])
-            # 更新余额显示
+            # Update account info
             self.update_account_info()
             break
-
         self.main_window.set_operatoin_status(self.current_account_id, False)           
 
-    def close_account(self):
-
+    def cancel_account(self):
         if self.main_window.whether_logging_in(self.current_account_id):
-            QMessageBox.warning(self, "Error", f"Account {self.current_account_id} is currently logged in from an APP. Cannot close account.")
+            QMessageBox.warning(self, "Error", f"Account {self.current_account_id} is currently logged in from an APP. Cannot cancel account.")
             return
 
-        reply = QMessageBox.question(self, 'Confirm', 'Are you sure you want to close your account?',
+        reply = QMessageBox.question(self, 'Confirm', 'Are you sure you want to cancel your account?',
                                      QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
-            # 发送关闭账户请求到后端
-            self.zmqThread.sendMsg(f"close_account@{self.current_account_id}")
+            # Send cancel account request to backend
+            self.zmqThread.sendMsg(f"cancel_account@{self.current_account_id}")
             time.sleep(0.1)  # 等待后端处理
             response = self.zmqThread.receivedMessage
 
@@ -252,7 +234,7 @@ class ATM(QWidget):
                 QMessageBox.warning(self, "Error", response.split("@")[1])
                 return
 
-            QMessageBox.information(self, "Success", "Account closed successfully")
+            QMessageBox.information(self, "Success", "Account canceled successfully")
             self.current_account_id = None  # Reset the current account ID
             self.show_initial_page()
 
@@ -265,7 +247,7 @@ class ATM(QWidget):
         self.password_input.hide()
         self.confirm_button.hide()
         self.back_button.hide()
-        self.close_button.hide()
+        self.cancel_button.hide()
         self.return_button.hide()
         self.withdraw_button.hide()
         self.deposit_button.hide()
@@ -325,27 +307,24 @@ class ATM(QWidget):
         self.query_button.clicked.connect(self.query)
         self.query_button.hide()
 
-        self.close_button = QPushButton('Close Account', self)
+        self.cancel_button = QPushButton('Cancel Account', self)
         self.return_button = QPushButton('Return Card', self)
         self.withdraw_button = QPushButton('Withdraw Cash', self)
         self.deposit_button = QPushButton('Deposit Cash', self)
         self.change_password_button = QPushButton('Change Password', self)
         self.transfer_money_button = QPushButton('Transfer Money', self)
-
-        self.close_button.clicked.connect(self.close_account)
+        self.cancel_button.clicked.connect(self.cancel_account)
         self.return_button.clicked.connect(self.return_card)
         self.withdraw_button.clicked.connect(self.withdraw_cash)
         self.deposit_button.clicked.connect(self.deposit_cash)
         self.change_password_button.clicked.connect(self.change_password)
         self.transfer_money_button.clicked.connect(self.transfer_money)
-
-        self.close_button.hide()
+        self.cancel_button.hide()
         self.return_button.hide()
         self.withdraw_button.hide()
         self.deposit_button.hide()
         self.change_password_button.hide()
         self.transfer_money_button.hide()
-
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.label)
         self.layout.addWidget(self.subtitle_label)
@@ -361,7 +340,7 @@ class ATM(QWidget):
         self.layout.addWidget(self.transfer_money_button)
         self.layout.addWidget(self.return_button)  # Log out
         self.layout.addWidget(self.change_password_button)
-        self.layout.addWidget(self.close_button)  # Delete
+        self.layout.addWidget(self.cancel_button)  # Delete
 
         self.setLayout(self.layout)
 
@@ -376,7 +355,7 @@ class ATM(QWidget):
         self.create_button.setFont(font)
         self.login_button.setFont(font)
         self.confirm_button.setFont(font)
-        self.close_button.setFont(font)
+        self.cancel_button.setFont(font)
         self.return_button.setFont(font)
         self.back_button.setFont(font)
         self.withdraw_button.setFont(font)
@@ -395,7 +374,7 @@ class ATM(QWidget):
         self.back_button.show()
         self.create_button.hide()
         self.login_button.hide()
-        self.close_button.hide()
+        self.cancel_button.hide()
         self.return_button.hide()
         self.withdraw_button.hide()
         self.deposit_button.hide()
@@ -412,7 +391,7 @@ class ATM(QWidget):
         self.confirm_button.show()
         self.create_button.hide()
         self.login_button.hide()
-        self.close_button.hide()
+        self.cancel_button.hide()
         self.return_button.hide()
         self.withdraw_button.hide()
         self.deposit_button.hide()
@@ -424,7 +403,7 @@ class ATM(QWidget):
     def confirm_action(self):
         if self.current_mode == 'create':
             if self.create_account():
-                self.log_in_successful()
+                self.insert_card_successful()
         elif self.current_mode == 'login':
-            if self.log_in():
-                self.log_in_successful()
+            if self.insert_card():
+                self.insert_card_successful()
