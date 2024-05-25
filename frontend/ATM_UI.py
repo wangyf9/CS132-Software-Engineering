@@ -97,14 +97,10 @@ class ATM(QWidget):
             return
         
         while True:
-
             self.main_window.set_operatoin_status(self.current_account_id, True)
-
             new_password, ok = QInputDialog.getText(self, "Change Password", "Enter new password:")
             if not ok:
-
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
-
                 return
             # 发送修改密码请求到后端
             self.zmqThread.sendMsg(f"change_password@{self.current_account_id}@{new_password}")
@@ -128,21 +124,15 @@ class ATM(QWidget):
             return
 
         while True:
-
             self.main_window.set_operatoin_status(self.current_account_id, True)
-
             receiver_id, ok = QInputDialog.getText(self, "Transfer Money", "Enter receiver's account ID:")
             if not ok:
-
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
-
                 return
 
             amount, ok = QInputDialog.getDouble(self, "Transfer Money", "Enter amount to transfer:", decimals=2)
             if not ok:
-
                 self.main_window.set_operatoin_status(self.current_account_id, False)
-
                 return
 
             # 发送转账请求到后端
@@ -176,20 +166,14 @@ class ATM(QWidget):
         self.show_initial_page()
 
     def deposit_cash(self):
-
         if self.main_window.whether_processing(self.current_account_id):
             QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
             return
-
         while True:
-
             self.main_window.set_operatoin_status(self.current_account_id, True) 
-
             amount, ok = QInputDialog.getDouble(self, "Deposit Cash", "Enter amount to deposit:", decimals=2)
             if not ok:
-
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
-
                 return
 
             # 发送存款请求到后端
@@ -228,12 +212,9 @@ class ATM(QWidget):
 
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
-
             amount, ok = QInputDialog.getDouble(self, "Withdraw Cash", "Enter amount to withdraw:", decimals=2)
             if not ok:
-
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
-
                 return
 
             # 发送取款请求到后端

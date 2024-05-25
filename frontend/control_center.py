@@ -4,6 +4,45 @@ import sys
 import APP_UI
 import NetClient
 import ATM_UI
+import sqlite3
+
+def initialize_database():
+    conn = sqlite3.connect('bank.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS accounts (
+        id TEXT PRIMARY KEY,
+        password TEXT NOT NULL,
+        balance REAL NOT NULL
+    )
+    ''')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        account_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        amount REAL NOT NULL,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        starting_balance REAL NOT NULL,
+        ending_balance REAL NOT NULL
+    )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+def reset_database():
+    conn = sqlite3.connect('bank.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('DROP TABLE IF EXISTS accounts')
+    cursor.execute('DROP TABLE IF EXISTS transactions')
+    
+    conn.commit()
+    conn.close()
+    initialize_database()  # Recreate tables
 
 class MainWindow(QMainWindow):
     operationInProgress = pyqtSignal(int, bool)  # Signal with account ID and operation status
@@ -27,8 +66,12 @@ class MainWindow(QMainWindow):
         closeAppButton.clicked.connect(self.close_app)
         closeAppButton.setGeometry(50, 150, 200, 50)
 
+        resetButton = QPushButton('Reset System Database', self)
+        resetButton.clicked.connect(self.reset)
+        resetButton.setGeometry(50, 250, 200, 50)
+
         self.setWindowTitle('Main Window')
-        self.setGeometry(100, 100, 400, 300)
+        self.setGeometry(100, 100, 400, 400)
 
     def open_app(self):
         app_id, ok = QInputDialog.getText(self, 'Open App', 'Enter app ID:')
@@ -92,12 +135,17 @@ class MainWindow(QMainWindow):
 
     def whether_processing(self, account_id):
         return self.account_operations.get(account_id, False)
-    
+
+    def reset(self):
+        confirmation = QMessageBox.question(self, 'Reset Database', 'Are you sure you want to reset the database?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if confirmation == QMessageBox.Yes:
+            reset_database()
+            QMessageBox.information(self, 'Success', 'Database has been reset.')
+
 if __name__ == '__main__':
     identity = "Team15"
     zmqThread = NetClient.ZmqClientThread(identity=identity)
     app = QApplication(sys.argv)
     mainWindow = MainWindow(zmqThread)
     mainWindow.show()
-
     sys.exit(app.exec_())

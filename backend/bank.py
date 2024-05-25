@@ -36,6 +36,4 @@ def reset_database():
     
     conn.commit()
     conn.close()
-
-if __name__ == "__main__":
-    initialize_database()
+    initialize_database()  # Recreate tables

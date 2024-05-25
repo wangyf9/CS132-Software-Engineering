@@ -53,10 +53,8 @@ class APP(QWidget):
         while True:
             self.operationInProgress.emit(self.current_account_id, True)
             self.main_window.set_operatoin_status(self.current_account_id, True)
-
             new_password, ok = QInputDialog.getText(self, "Change Password", "Enter new password:")
             if not ok:
-
                 self.operationInProgress.emit(self.current_account_id, False)
                 self.main_window.set_operatoin_status(self.current_account_id, False)
 
@@ -85,10 +83,8 @@ class APP(QWidget):
             return
         
         while True:
-
             self.operationInProgress.emit(self.current_account_id, True)
             self.main_window.set_operatoin_status(self.current_account_id, True)
-
             receiver_id, ok = QInputDialog.getText(self, "Transfer Money", "Enter receiver's account ID:")
             if not ok:
                 self.operationInProgress.emit(self.current_account_id, False)
