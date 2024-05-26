@@ -250,9 +250,9 @@ class APP(QWidget):
         self.current_account_id = self.id_input.text()  # Save the current logged-in account ID
         self.clear_and_hide_inputs()
         self.subtitle_label.setText('Main Menu')
-        self.setup_main_menu_buttons()
+        self.show_secondary_page()
 
-    def setup_main_menu_buttons(self):
+    def show_secondary_page(self):
         self.zmqThread.sendMsg(f"get_balance@{self.current_account_id}")
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage

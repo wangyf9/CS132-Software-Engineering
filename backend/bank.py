@@ -30,10 +30,8 @@ def initialize_database():
 def reset_database():
     conn = sqlite3.connect('bank.db')
     cursor = conn.cursor()
-    
     cursor.execute('DROP TABLE IF EXISTS accounts')
     cursor.execute('DROP TABLE IF EXISTS transactions')
-    
     conn.commit()
     conn.close()
     initialize_database()  # Recreate tables
