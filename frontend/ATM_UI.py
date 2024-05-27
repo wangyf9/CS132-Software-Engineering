@@ -5,7 +5,7 @@ import time
 
 class ATM(QWidget):
     password_changed = pyqtSignal(int)
-
+    balance_changed = pyqtSignal(int)
     def __init__(self, zmqThread, main_window):
         super().__init__()
         self.zmqThread = zmqThread
@@ -129,7 +129,6 @@ class ATM(QWidget):
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False)
                 return
-
             # Send transfer money request to backend
             self.zmqThread.sendMsg(f"transfer_money@{self.current_account_id}@{receiver_id}@{amount}")
             time.sleep(0.1)  # Wait for backend processing
@@ -141,6 +140,8 @@ class ATM(QWidget):
 
             QMessageBox.information(self, "Success", response.split("@")[1])
             # Update account info
+            return_id = int(self.current_account_id)
+            self.balance_changed.emit(return_id)
             self.update_account_info()
             break
 
@@ -179,6 +180,8 @@ class ATM(QWidget):
 
             QMessageBox.information(self, "Success", response.split("@")[1])
             # Update account info
+            return_id = int(self.current_account_id)
+            self.balance_changed.emit(return_id)
             self.update_account_info()
             break
         self.main_window.set_operatoin_status(self.current_account_id, False)        
@@ -214,6 +217,8 @@ class ATM(QWidget):
 
             QMessageBox.information(self, "Success", response.split("@")[1])
             # Update account info
+            return_id = int(self.current_account_id)
+            self.balance_changed.emit(return_id)
             self.update_account_info()
             break
         self.main_window.set_operatoin_status(self.current_account_id, False)           

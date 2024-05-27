@@ -8,7 +8,7 @@ class APP(QWidget):
     closed = pyqtSignal(int)
     operationInProgress = pyqtSignal(int, bool)
     password_changed = pyqtSignal(int)
-
+    balance_changed = pyqtSignal(int)
     def __init__(self, zmqThread, app_id, main_window):
         super().__init__()
         self.zmqThread = zmqThread
@@ -106,6 +106,8 @@ class APP(QWidget):
 
             QMessageBox.information(self, "Success", response.split("@")[1])
             # Update balance display
+            return_id = int(self.current_account_id)
+            self.balance_changed.emit(return_id)
             self.update_account_info()
             break
         self.operationInProgress.emit(self.current_account_id, False)
