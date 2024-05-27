@@ -143,9 +143,10 @@ class ATM(QWidget):
             return_id = int(self.current_account_id)
             self.balance_changed.emit(return_id)
             self.update_account_info()
+            self.main_window.set_operatoin_status(self.current_account_id, False)
             break
 
-        self.main_window.set_operatoin_status(self.current_account_id, False)
+
 
     def return_card(self):
         # Send return card request to backend
@@ -183,8 +184,9 @@ class ATM(QWidget):
             return_id = int(self.current_account_id)
             self.balance_changed.emit(return_id)
             self.update_account_info()
+            self.main_window.set_operatoin_status(self.current_account_id, False)      
             break
-        self.main_window.set_operatoin_status(self.current_account_id, False)        
+  
 
     def update_account_info(self):
         # Send get balance request to backend
@@ -220,8 +222,9 @@ class ATM(QWidget):
             return_id = int(self.current_account_id)
             self.balance_changed.emit(return_id)
             self.update_account_info()
+            self.main_window.set_operatoin_status(self.current_account_id, False)    
             break
-        self.main_window.set_operatoin_status(self.current_account_id, False)           
+       
 
     def cancel_account(self):
         if self.main_window.whether_logging_in(self.current_account_id):

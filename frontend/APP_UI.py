@@ -71,11 +71,10 @@ class APP(QWidget):
             QMessageBox.information(self, "Success", "Password changed successfully")
             return_id = int(self.current_account_id)
             self.password_changed.emit(return_id)
+            self.operationInProgress.emit(self.current_account_id, False)
+            self.main_window.set_operatoin_status(self.current_account_id, False)
             self.log_out()
             break
-        self.operationInProgress.emit(self.current_account_id, False)
-
-        self.main_window.set_operatoin_status(self.current_account_id, False)
 
     def transfer_money(self):
         if self.main_window.whether_processing(self.current_account_id):
@@ -108,10 +107,10 @@ class APP(QWidget):
             # Update balance display
             return_id = int(self.current_account_id)
             self.balance_changed.emit(return_id)
+            self.operationInProgress.emit(self.current_account_id, False)
             self.update_account_info()
+            self.main_window.set_operatoin_status(self.current_account_id, False)
             break
-        self.operationInProgress.emit(self.current_account_id, False)
-        self.main_window.set_operatoin_status(self.current_account_id, False)
 
     def log_out(self):
         # Send log out request to backend
