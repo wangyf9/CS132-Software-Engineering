@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QMessageBox, QInputDialog, QApplication
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QWidget, QMainWindow, QLabel, QPushButton, QMessageBox, QInputDialog, QApplication, QVBoxLayout, QHBoxLayout, QFrame, QGridLayout
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QFont
 import sys
 import APP_UI
 import NetClient
@@ -20,23 +21,64 @@ class Controller(QMainWindow):
         self.atm.show()
         self.atm.password_changed.connect(self.handle_password_changed_atm)
         self.atm.balance_changed.connect(self.handle_balance_changed_atm)
+        self.atm.transfer_changed.connect(self.handle_transfer_changed_atm)
         
     def initUI(self):
-        openAppButton = QPushButton('Open App', self)
-        openAppButton.clicked.connect(self.open_app)
-        openAppButton.setGeometry(50, 50, 200, 50)
+        self.label = QLabel('Banking System Controller', self)
 
-        closeAppButton = QPushButton('Close App', self)
-        closeAppButton.clicked.connect(self.close_app)
-        closeAppButton.setGeometry(50, 150, 200, 50)
+        self.openAppButton = QPushButton('Open App', self)
+        self.openAppButton.clicked.connect(self.open_app)
 
-        resetButton = QPushButton('Reset System Database', self)
-        resetButton.clicked.connect(self.reset)
-        resetButton.setGeometry(50, 250, 200, 50)
+        self.closeAppButton = QPushButton('Close App', self)
+        self.closeAppButton.clicked.connect(self.close_app)
+
+        self.resetButton = QPushButton('Reset System Database', self)
+        self.resetButton.clicked.connect(self.reset)
+
+        # Set font
+        font = QFont()
+        font.setFamily("Times New Roman")
+        font.setBold(True)
+        font.setItalic(True)
+        font.setPointSize(12)
+        self.label.setFont(font)
+        self.openAppButton.setFont(font)
+        self.closeAppButton.setFont(font)
+        self.resetButton.setFont(font)
+
+        # Main layout
+        main_layout = QVBoxLayout()
+
+        # Title section
+        title_layout = QVBoxLayout()
+        title_layout.addWidget(self.label, alignment=Qt.AlignCenter)
+
+        title_frame = QFrame(self)
+        title_frame.setLayout(title_layout)
+        title_frame.setFrameShape(QFrame.Box)
+        title_frame.setFrameShadow(QFrame.Sunken)
+
+        # Buttons section
+        buttons_layout = QVBoxLayout()
+        buttons_layout.addWidget(self.openAppButton, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.closeAppButton, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.resetButton, alignment=Qt.AlignCenter)
+
+        buttons_frame = QFrame(self)
+        buttons_frame.setLayout(buttons_layout)
+        buttons_frame.setFrameShape(QFrame.Box)
+        buttons_frame.setFrameShadow(QFrame.Sunken)
+
+        main_layout.addWidget(title_frame)
+        main_layout.addWidget(buttons_frame)
+
+        # Create a central widget and set the layout on it
+        central_widget = QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
         self.setWindowTitle('Main Window')
-        self.setGeometry(100, 100, 400, 400)
-
+        self.setGeometry(300, 300, 400, 400)
 
     def open_app(self):
         dialog = QInputDialog(self)
@@ -80,6 +122,7 @@ class Controller(QMainWindow):
         app_instance.operationInProgress.connect(self.set_operatoin_status)
         app_instance.password_changed.connect(self.handle_password_changed_app)
         app_instance.balance_changed.connect(self.handle_balance_changed_app)
+        app_instance.transfer_changed.connect(self.handle_transfer_changed_app)
 
     def handle_app_closed(self, app_id):
         del self.app_instances[str(app_id)]
@@ -120,6 +163,15 @@ class Controller(QMainWindow):
                 app_instance.update_account_info()
 
     def handle_balance_changed_app(self, account_id):
+        if int(self.atm.current_account_id) == account_id:
+            self.atm.update_account_info()
+
+    def handle_transfer_changed_atm(self, account_id):
+        for app_id, app_instance in self.app_instances.items():
+            if app_instance.logged_in and (int(app_instance.current_account_id) == account_id):
+                app_instance.update_account_info()
+
+    def handle_transfer_changed_app(self, account_id):
         if int(self.atm.current_account_id) == account_id:
             self.atm.update_account_info()
 

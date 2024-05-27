@@ -367,6 +367,6 @@ class ZmqServerThread(threading.Thread):
         cursor.execute("SELECT password, balance FROM accounts WHERE id = ?", (account_id,))
         account_info = cursor.fetchone()
         cursor.execute("SELECT type, amount, date, starting_balance, ending_balance FROM transactions WHERE account_id = ?", (account_id,))
-        transactions = cursor.fetchall()
+        transactions = cursor.fetchall()[-5:][::-1]
         conn.close()
         return account_info, transactions

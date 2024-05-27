@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit, QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QFrame, QGridLayout, QMessageBox, QInputDialog
 from PyQt5.QtGui import QCloseEvent, QFont
 import time
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 
 class APP(QWidget):
     # This is a front end communication signal
@@ -9,6 +9,7 @@ class APP(QWidget):
     operationInProgress = pyqtSignal(int, bool)
     password_changed = pyqtSignal(int)
     balance_changed = pyqtSignal(int)
+    transfer_changed = pyqtSignal(int)
     def __init__(self, zmqThread, app_id, main_window):
         super().__init__()
         self.zmqThread = zmqThread
@@ -108,6 +109,7 @@ class APP(QWidget):
             return_id = int(self.current_account_id)
             self.balance_changed.emit(return_id)
             self.operationInProgress.emit(self.current_account_id, False)
+            self.transfer_changed.emit(int(receiver_id))
             self.update_account_info()
             self.main_window.set_operatoin_status(self.current_account_id, False)
             break
@@ -134,6 +136,7 @@ class APP(QWidget):
 
     def show_initial_page(self):
         # Implement your initial page UI here
+        self.subtitle_label.setText('Init Menu') 
         self.id_input.clear()
         self.password_input.clear()
         self.login_button.show()
@@ -163,24 +166,25 @@ class APP(QWidget):
             QMessageBox.information(self, "Transaction History", response.split("@")[1])
 
     def initUI(self):
-        # Implement your initial UI here
         self.maxDepositAmount = 50000.00
         self.current_mode = None
         self.current_account_id = None
         self.account_info_label = None
+
         self.label = QLabel(f'Banking System Application: #{self.app_id}', self)
-        # Subtitle(f"App Interface: #{self.app_id}")
-        self.subtitle_label = QLabel('', self)
+        self.subtitle_label = QLabel('Init Menu', self)
+
         self.login_button = QPushButton('Log In', self)
         self.login_button.clicked.connect(self.show_login_inputs)
+
         self.id_input = QLineEdit(self)
         self.id_input.setPlaceholderText('Account ID')
         self.id_input.hide()
+
         self.password_input = QLineEdit(self)
         self.password_input.setPlaceholderText('Password')
-        # Hide password
-        # self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.hide()
+
         self.confirm_button = QPushButton('Confirm', self)
         self.confirm_button.clicked.connect(self.confirm_action)
         self.confirm_button.hide()
@@ -203,19 +207,6 @@ class APP(QWidget):
         self.change_password_button.hide()
         self.transfer_money_button.hide()
 
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(self.label)
-        self.layout.addWidget(self.subtitle_label)
-        self.layout.addWidget(self.login_button)
-        self.layout.addWidget(self.id_input)
-        self.layout.addWidget(self.password_input)
-        self.layout.addWidget(self.confirm_button)
-        self.layout.addWidget(self.back_button)
-        self.layout.addWidget(self.query_button)
-        self.layout.addWidget(self.transfer_money_button)
-        self.layout.addWidget(self.return_button)  # Log out
-        self.layout.addWidget(self.change_password_button)
-        self.setLayout(self.layout)
         # Set font
         font = QFont()
         font.setFamily("Times New Roman")
@@ -231,6 +222,40 @@ class APP(QWidget):
         self.change_password_button.setFont(font)
         self.transfer_money_button.setFont(font)
         self.query_button.setFont(font)
+
+        # Main layout
+        main_layout = QVBoxLayout()
+        
+        # Title section
+        title_layout = QVBoxLayout()
+        title_layout.addWidget(self.label, alignment=Qt.AlignCenter)
+        title_layout.addWidget(self.subtitle_label, alignment=Qt.AlignCenter)
+
+        title_frame = QFrame(self)
+        title_frame.setLayout(title_layout)
+        title_frame.setFrameShape(QFrame.Box)
+        title_frame.setFrameShadow(QFrame.Sunken)
+
+        # Buttons section
+        buttons_layout = QVBoxLayout()
+        buttons_layout.addWidget(self.login_button, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.id_input, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.password_input, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.confirm_button, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.back_button, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.query_button, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.transfer_money_button, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.change_password_button, alignment=Qt.AlignCenter)
+        buttons_layout.addWidget(self.return_button, alignment=Qt.AlignCenter)
+        buttons_frame = QFrame(self)
+        buttons_frame.setLayout(buttons_layout)
+        buttons_frame.setFrameShape(QFrame.Box)
+        buttons_frame.setFrameShadow(QFrame.Sunken)
+
+        main_layout.addWidget(title_frame)
+        main_layout.addWidget(buttons_frame)
+
+        self.setLayout(main_layout)
         self.setWindowTitle(f"App Interface: #{self.app_id}")
         self.setGeometry(300, 300, 600, 450)
 
@@ -258,10 +283,12 @@ class APP(QWidget):
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
         balance = float(response.split("@")[1])
-        self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
+        if not self.account_info_label:
+            self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
+            self.layout().addWidget(self.account_info_label)
+        else:
+            self.account_info_label.setText(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}")
         self.account_info_label.show()
-        self.account_info_label.show()
-        self.layout.addWidget(self.account_info_label)
         self.return_button.show()
         self.change_password_button.show()
         self.transfer_money_button.show()
