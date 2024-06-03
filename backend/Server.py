@@ -163,6 +163,10 @@ class ZmqServerThread(threading.Thread):
             receiver_id = params[1]
             amount = float(params[2])
 
+            if sender_id == receiver_id:
+                self.send_string(address, "error@Can't tranfer to your own")
+                return
+
             if not receiver_id.isdigit() or len(receiver_id) != 10:
                 self.send_string(address, "error@Receiver's account ID must consist of 10 digits")
                 return
