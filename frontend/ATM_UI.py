@@ -229,7 +229,6 @@ class ATM(QWidget):
             self.main_window.set_operatoin_status(self.current_account_id, False)    
             break
        
-
     def cancel_account(self):
         if self.main_window.whether_logging_in(self.current_account_id):
             QMessageBox.warning(self, "Error", f"Account {self.current_account_id} is currently logged in from an APP. Cannot cancel account.")

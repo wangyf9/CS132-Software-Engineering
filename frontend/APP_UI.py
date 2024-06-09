@@ -23,7 +23,7 @@ class APP(QWidget):
         password = self.password_input.text()
 
         # Send login request to backend
-        self.zmqThread.sendMsg(f"log_in@{account_id}@{password}")
+        self.zmqThread.sendMsg(f"log_in@{account_id}@{password}#{self.app_id}")
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
 
@@ -61,7 +61,7 @@ class APP(QWidget):
                 return
             
             # Send change password request to backend
-            self.zmqThread.sendMsg(f"change_password@{self.current_account_id}@{new_password}")
+            self.zmqThread.sendMsg(f"change_password@{self.current_account_id}@{new_password}(#{self.app_id})")
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
@@ -97,7 +97,7 @@ class APP(QWidget):
                 return
 
             # Send transfer money request to backend
-            self.zmqThread.sendMsg(f"transfer_money@{self.current_account_id}@{receiver_id}@{amount}")
+            self.zmqThread.sendMsg(f"transfer_money@{self.current_account_id}@{receiver_id}@{amount}(#{self.app_id})")
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
             if response.startswith("error@"):
@@ -116,7 +116,7 @@ class APP(QWidget):
 
     def log_out(self):
         # Send log out request to backend
-        self.zmqThread.sendMsg("log_out")
+        self.zmqThread.sendMsg(f"log_out#{self.app_id}")
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
         self.main_window.set_log_status(self.current_account_id, None)
@@ -160,7 +160,7 @@ class APP(QWidget):
     def query(self):
         if self.current_account_id:
             # Send query request to backend
-            self.zmqThread.sendMsg(f"query@{self.current_account_id}")
+            self.zmqThread.sendMsg(f"query@{self.current_account_id}(#{self.app_id})")
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
             QMessageBox.information(self, "Transaction History", response.split("@")[1])

@@ -4,6 +4,7 @@ import threading
 import sys
 import os
 import sqlite3
+import re
 
 class ZmqServerThread(threading.Thread):
     _port = 27132
@@ -57,7 +58,7 @@ class ZmqServerThread(threading.Thread):
 
     # start listening
     def hosting(self, server_port: int = None) -> None:
-
+        
         if server_port is not None:
             self.port = server_port
         self.socket.bind("tcp://{0}:{1}".format("127.0.0.1", self.port))
@@ -85,7 +86,10 @@ class ZmqServerThread(threading.Thread):
         self.hosting()
 
     def process_request(self, address: str, message: str):
-        parts = message.split('@')
+        cleaned_string = message.replace("(", "").replace(")", "")
+        parts = re.split('[@#]', cleaned_string)
+        print(parts)
+        # parts = message.split('@')
         command = parts[0]
         params = parts[1:]
 

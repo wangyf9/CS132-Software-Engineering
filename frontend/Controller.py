@@ -157,7 +157,7 @@ class Controller(QMainWindow):
                 app_instance.log_out()
 
     def handle_password_changed_app(self, account_id):
-        if int(self.atm.current_account_id) == account_id:
+        if self.atm.current_account_id is not None and int(self.atm.current_account_id) == account_id:
             self.atm.return_card()
 
     def handle_balance_changed_atm(self, account_id):
@@ -166,7 +166,7 @@ class Controller(QMainWindow):
                 app_instance.update_account_info()
 
     def handle_balance_changed_app(self, account_id):
-        if int(self.atm.current_account_id) == account_id:
+        if self.atm.current_account_id is not None and int(self.atm.current_account_id) == account_id:
             self.atm.update_account_info()
 
     def handle_transfer_changed_atm(self, account_id):
@@ -175,7 +175,7 @@ class Controller(QMainWindow):
                 app_instance.update_account_info()
 
     def handle_transfer_changed_app(self, account_id):
-        if int(self.atm.current_account_id) == account_id:
+        if self.atm.current_account_id is not None and int(self.atm.current_account_id) == account_id:
             self.atm.update_account_info()
 
     def reset(self):
