@@ -96,14 +96,14 @@ class ZmqServerThread(threading.Thread):
         if command == "create_account":
             account_id = params[0]
             password = params[1]
-            if not account_id.isdigit() or len(account_id) != 10:
+            if not len(account_id) == 10:
                 self.send_string(address, "error@A@Account ID must consist of 10 digits")
                 return
             if self.account_exists(account_id):
                 self.send_string(address, "error@A@Account already exists")
                 return
-            if not (len(password) >= 8 and any(c.isupper() for c in password) and any(c.islower() for c in password) and any(c.isdigit() for c in password)):
-                self.send_string(address, "error@B@Password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
+            if not len(password) == 6:
+                self.send_string(address, "error@B@Password must consist of 6 digits")
                 return
             self.create_account(account_id, password)
             self.send_string(address, "success@Account created successfully")
@@ -156,8 +156,8 @@ class ZmqServerThread(threading.Thread):
             if new_password == old_password:
                 self.send_string(address, "error@New password cannot be the same as the old password")
                 return
-            if not (len(new_password) >= 8 and any(c.isupper() for c in new_password) and any(c.islower() for c in new_password) and any(c.isdigit() for c in new_password)):
-                self.send_string(address, "error@New password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
+            if not len(new_password) == 6:
+                self.send_string(address, "error@B@Password must consist of 6 digits")
                 return
             self.change_password(account_id, new_password)
             self.send_string(address, "success@Password changed successfully")

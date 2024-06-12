@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QFrame, QGridLayout, QMessageBox, QInputDialog
-from PyQt5.QtGui import QCloseEvent, QFont
+from PyQt5.QtGui import QCloseEvent, QFont, QIntValidator
 import time
 from PyQt5.QtCore import pyqtSignal, Qt
 
@@ -54,7 +54,7 @@ class APP(QWidget):
         while True:
             self.operationInProgress.emit(self.current_account_id, True)
             self.main_window.set_operatoin_status(self.current_account_id, True)
-            new_password, ok = QInputDialog.getText(self, "Change Password", "Enter new password:")
+            new_password, ok = QInputDialog.getInt(self, "Change Password", "Enter new password (6 digits):", min=0, max=999999)
             if not ok:
                 self.operationInProgress.emit(self.current_account_id, False)
                 self.main_window.set_operatoin_status(self.current_account_id, False)
@@ -179,10 +179,15 @@ class APP(QWidget):
 
         self.id_input = QLineEdit(self)
         self.id_input.setPlaceholderText('Account ID')
+        validator = QIntValidator(0, 9999999999, self)  # Allows only 10 digit numbers
+        self.id_input.setValidator(validator)
         self.id_input.hide()
 
         self.password_input = QLineEdit(self)
         self.password_input.setPlaceholderText('Password')
+        self.password_input.setEchoMode(QLineEdit.Password)
+        validator = QIntValidator(0, 999999, self)  # Allows only 6 digit numbers
+        self.password_input.setValidator(validator)
         self.password_input.hide()
 
         self.confirm_button = QPushButton('Confirm', self)
