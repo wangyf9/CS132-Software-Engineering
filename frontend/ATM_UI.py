@@ -167,11 +167,11 @@ class ATM(QWidget):
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
-            amount, ok = QInputDialog.getDouble(self, "Deposit Cash", "Enter amount to deposit:", decimals=2)
+            amount, ok = QInputDialog.getInt(self, "Deposit Cash", "Enter number to deposit(1 - 500):", min=1, max=500)
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
-
+            amount = amount * 100
             # Send deposit cash request to backend
             self.zmqThread.sendMsg(f"deposit_cash@{self.current_account_id}@{amount}")
 
@@ -207,11 +207,11 @@ class ATM(QWidget):
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
-            amount, ok = QInputDialog.getDouble(self, "Withdraw Cash", "Enter amount to withdraw:", decimals=2)
+            amount, ok = QInputDialog.getInt(self, "Withdraw Cash", "Enter number to withdraw(1 - 500):", min=1, max=500)
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
-
+            amount = amount * 100
             # Send withdraw cash request to backend
             self.zmqThread.sendMsg(f"withdraw_cash@{self.current_account_id}@{amount}")
             time.sleep(0.1)  # Wait for backend processing
