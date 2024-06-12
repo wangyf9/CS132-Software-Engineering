@@ -132,11 +132,12 @@ class Controller(QMainWindow):
         self.num_apps_opened -= 1
     
     def whether_logging_in(self, account_id):
-        return self.logging_in_accounts.get(account_id) is not None
+        if self.logging_in_accounts.get(account_id) is not None:
+            self.logging_in_accounts[account_id].log_out()
 
-    def set_log_status(self, account_id, app_id):
+    def set_log_status(self, app_instance, account_id, app_id):
         if app_id is not None:
-            self.logging_in_accounts[account_id] = app_id
+            self.logging_in_accounts[account_id] = app_instance
         else:
             if account_id in self.logging_in_accounts:
                 del self.logging_in_accounts[account_id]

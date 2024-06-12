@@ -36,13 +36,8 @@ class APP(QWidget):
                 self.password_input.clear()
             return False
         
-        if self.main_window.whether_logging_in(account_id):
-            QMessageBox.warning(self, "Error", f"Account {account_id} is already logged in another App.")
-            self.id_input.clear()
-            self.password_input.clear()
-            return False
-        
-        self.main_window.set_log_status(account_id, self.app_id)
+        self.main_window.whether_logging_in(account_id)
+        self.main_window.set_log_status(self, account_id, self.app_id)
         self.logged_in = True
         QMessageBox.information(self, "Success", "Log in successfully")
         return True
@@ -119,7 +114,7 @@ class APP(QWidget):
         self.zmqThread.sendMsg(f"log_out#{self.app_id}")
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
-        self.main_window.set_log_status(self.current_account_id, None)
+        self.main_window.set_log_status(self, self.current_account_id, None)
         QMessageBox.information(self, "Success", "Logged out successfully")
         self.current_account_id = None
         self.logged_in = False
@@ -316,7 +311,7 @@ class APP(QWidget):
     def closeEvent(self, event):
         self.closed.emit(self.app_id)
         if self.current_account_id is not None:
-            self.main_window.set_log_status(self.current_account_id, None)
+            self.main_window.set_log_status(self, self.current_account_id, None)
         event.accept()  # Let the window close
 
 
