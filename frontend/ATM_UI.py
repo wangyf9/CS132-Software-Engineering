@@ -23,12 +23,12 @@ class ATM(QWidget):
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
 
-        if response.startswith("error@"):
-            QMessageBox.warning(self, "Error", response.split("@")[2])
-            if response.split("@")[1] == 'A':  # Account error
+        if response.startswith("failed@"):
+            QMessageBox.warning(self, "failed", response.split("@")[2])
+            if response.split("@")[1] == 'A':  # Account failed
                 self.id_input.clear()
                 self.password_input.clear()
-            elif response.split("@")[1] == 'B':  # Password error
+            elif response.split("@")[1] == 'B':  # Password failed
                 self.password_input.clear()
             return False
         QMessageBox.information(self, "Success", "Account created successfully")
@@ -43,12 +43,12 @@ class ATM(QWidget):
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
 
-        if response.startswith("error@"):
-            QMessageBox.warning(self, "Error", response.split("@")[2])
-            if response.split("@")[1] == 'A':  # Account error
+        if response.startswith("failed@"):
+            QMessageBox.warning(self, "failed", response.split("@")[2])
+            if response.split("@")[1] == 'A':  # Account failed
                 self.id_input.clear()
                 self.password_input.clear()
-            elif response.split("@")[1] == 'B':  # Password error
+            elif response.split("@")[1] == 'B':  # Password failed
                 self.password_input.clear()
             return False
 
@@ -93,7 +93,7 @@ class ATM(QWidget):
 
     def change_password(self):
         if self.main_window.whether_processing(self.current_account_id):
-            QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
+            QMessageBox.warning(self, "failed", "Another operation is in progress in APP.")
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True)
@@ -106,8 +106,8 @@ class ATM(QWidget):
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if response.startswith("failed@"):
+                QMessageBox.warning(self, "failed", response.split("@")[1])
                 continue
 
             QMessageBox.information(self, "Success", "Password changed successfully")
@@ -121,7 +121,7 @@ class ATM(QWidget):
 
     def transfer_money(self):
         if self.main_window.whether_processing(self.current_account_id):
-            QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
+            QMessageBox.warning(self, "failed", "Another operation is in progress in APP.")
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True)
@@ -139,8 +139,8 @@ class ATM(QWidget):
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if response.startswith("failed@"):
+                QMessageBox.warning(self, "failed", response.split("@")[1])
                 continue
 
             QMessageBox.information(self, "Success", response.split("@")[1])
@@ -163,7 +163,7 @@ class ATM(QWidget):
 
     def deposit_cash(self):
         if self.main_window.whether_processing(self.current_account_id):
-            QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
+            QMessageBox.warning(self, "failed", "Another operation is in progress in APP.")
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
@@ -179,8 +179,8 @@ class ATM(QWidget):
             response = self.zmqThread.receivedMessage
             # print("response info", response.split("@")[0])
             # print("response info", response.split("@")[1])
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if response.startswith("failed@"):
+                QMessageBox.warning(self, "failed", response.split("@")[1])
                 continue
 
             QMessageBox.information(self, "Success", response.split("@")[1])
@@ -203,7 +203,7 @@ class ATM(QWidget):
 
     def withdraw_cash(self):
         if self.main_window.whether_processing(self.current_account_id):
-            QMessageBox.warning(self, "Error", "Another operation is in progress in APP.")
+            QMessageBox.warning(self, "failed", "Another operation is in progress in APP.")
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
@@ -217,8 +217,8 @@ class ATM(QWidget):
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if response.startswith("failed@"):
+                QMessageBox.warning(self, "failed", response.split("@")[1])
                 continue
 
             QMessageBox.information(self, "Success", response.split("@")[1])
@@ -231,7 +231,7 @@ class ATM(QWidget):
        
     def cancel_account(self):
         if self.main_window.whether_logging_in(self.current_account_id):
-            QMessageBox.warning(self, "Error", f"Account {self.current_account_id} is currently logged in from an APP. Cannot cancel account.")
+            QMessageBox.warning(self, "failed", f"Account {self.current_account_id} is currently logged in from an APP. Cannot cancel account.")
             return
 
         reply = QMessageBox.question(self, 'Confirm', 'Are you sure you want to cancel your account?',
@@ -243,8 +243,8 @@ class ATM(QWidget):
             time.sleep(0.1)  # 等待后端处理
             response = self.zmqThread.receivedMessage
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if response.startswith("failed@"):
+                QMessageBox.warning(self, "failed", response.split("@")[1])
                 return
 
             QMessageBox.information(self, "Success", "Account canceled successfully")

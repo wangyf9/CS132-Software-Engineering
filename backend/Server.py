@@ -31,7 +31,7 @@ class ZmqServerThread(threading.Thread):
     @port.setter
     def port(self, value: int):
         if value < 0 or value > 65535:
-            raise ValueError('score must between 0 ~ 65535!')
+            raise Valuefailed('score must between 0 ~ 65535!')
         self._port = value
 
     @property
@@ -97,13 +97,13 @@ class ZmqServerThread(threading.Thread):
             account_id = params[0]
             password = params[1]
             if not len(account_id) == 10:
-                self.send_string(address, "error@A@Account ID must consist of 10 digits")
+                self.send_string(address, "failed@A@Account ID must consist of 10 digits")
                 return
             if self.account_exists(account_id):
-                self.send_string(address, "error@A@Account already exists")
+                self.send_string(address, "failed@A@Account already exists")
                 return
             if not len(password) == 6:
-                self.send_string(address, "error@B@Password must consist of 6 digits")
+                self.send_string(address, "failed@B@Password must consist of 6 digits")
                 return
             self.create_account(account_id, password)
             self.send_string(address, "success@Account created successfully")
@@ -112,10 +112,10 @@ class ZmqServerThread(threading.Thread):
             account_id = params[0]
             password = params[1]
             if not self.account_exists(account_id):
-                self.send_string(address, "error@A@Invalid account ID")
+                self.send_string(address, "failed@A@Invalid account ID")
                 return
             if not self.verify_password(account_id, password):
-                self.send_string(address, "error@B@Invalid password")
+                self.send_string(address, "failed@B@Invalid password")
                 return
             self.send_string(address, "success@Log in successful")
 
@@ -123,10 +123,10 @@ class ZmqServerThread(threading.Thread):
             account_id = params[0]
             password = params[1]
             if not self.account_exists(account_id):
-                self.send_string(address, "error@A@Invalid account ID")
+                self.send_string(address, "failed@A@Invalid account ID")
                 return
             if not self.verify_password(account_id, password):
-                self.send_string(address, "error@B@Invalid password")
+                self.send_string(address, "failed@B@Invalid password")
                 return
             self.send_string(address, "success@Insert card successful")
 
@@ -134,10 +134,10 @@ class ZmqServerThread(threading.Thread):
             account_id = params[0]
             amount = float(params[1])
             if not self.account_exists(account_id):
-                self.send_string(address, "error@Invalid account ID")
+                self.send_string(address, "failed@Invalid account ID")
                 return
             if amount <= 0 or amount > 50000:
-                self.send_string(address, "error@Deposit amount must be between $0.01 and $50000.00")
+                self.send_string(address, "failed@Deposit amount must be between $0.01 and $50000.00")
                 return
             starting_balance, ending_balance = self.deposit_cash(account_id, amount)
             self.send_string(address, f"success@${amount:.2f} deposited successfully. Balance: {starting_balance} -> {ending_balance}")
@@ -154,10 +154,10 @@ class ZmqServerThread(threading.Thread):
 
             old_password = self.get_password(account_id)
             if new_password == old_password:
-                self.send_string(address, "error@New password cannot be the same as the old password")
+                self.send_string(address, "failed@New password cannot be the same as the old password")
                 return
             if not len(new_password) == 6:
-                self.send_string(address, "error@B@Password must consist of 6 digits")
+                self.send_string(address, "failed@B@Password must consist of 6 digits")
                 return
             self.change_password(account_id, new_password)
             self.send_string(address, "success@Password changed successfully")
@@ -168,23 +168,23 @@ class ZmqServerThread(threading.Thread):
             amount = float(params[2])
 
             if sender_id == receiver_id:
-                self.send_string(address, "error@Can't tranfer to your own")
+                self.send_string(address, "failed@Can't tranfer to your own")
                 return
 
             if not receiver_id.isdigit() or len(receiver_id) != 10:
-                self.send_string(address, "error@Receiver's account ID must consist of 10 digits")
+                self.send_string(address, "failed@Receiver's account ID must consist of 10 digits")
                 return
 
             if not self.account_exists(receiver_id):
-                self.send_string(address, "error@Invalid receiver account ID")
+                self.send_string(address, "failed@Invalid receiver account ID")
                 return
 
             if amount <= 0 or amount > 50000:
-                self.send_string(address, "error@Transfer amount must be between $0.01 and $50000.00")
+                self.send_string(address, "failed@Transfer amount must be between $0.01 and $50000.00")
                 return
 
             if not self.has_sufficient_balance(sender_id, amount):
-                self.send_string(address, "error@Insufficient account balance for transfer")
+                self.send_string(address, "failed@Insufficient account balance for transfer")
                 return
 
             sender_starting_balance, sender_ending_balance, receiver_starting_balance, receiver_ending_balance = self.transfer_money(sender_id, receiver_id, amount)
@@ -194,11 +194,11 @@ class ZmqServerThread(threading.Thread):
             account_id = params[0]
             amount = float(params[1])
             if amount <= 0 or amount > 50000:
-                self.send_string(address, "error@Withdrawal amount must be between $0.01 and $50000.00")
+                self.send_string(address, "failed@Withdrawal amount must be between $0.01 and $50000.00")
                 return
 
             if not self.has_sufficient_balance(account_id, amount):
-                self.send_string(address, "error@Insufficient account balance for withdrawal")
+                self.send_string(address, "failed@Insufficient account balance for withdrawal")
                 return
 
             starting_balance, ending_balance = self.withdraw_cash(account_id, amount)
@@ -208,7 +208,7 @@ class ZmqServerThread(threading.Thread):
             account_id = params[0]
 
             if not self.has_zero_balance(account_id):
-                self.send_string(address, "error@Account balance must be zero to cancel the account")
+                self.send_string(address, "failed@Account balance must be zero to cancel the account")
                 return
             self.cancel_account(account_id)
             self.send_string(address, "success@Account canceled successfully")

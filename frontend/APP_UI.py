@@ -27,12 +27,12 @@ class APP(QWidget):
         time.sleep(0.1)  # Wait for backend processing
         response = self.zmqThread.receivedMessage
 
-        if response.startswith("error@"):
-            QMessageBox.warning(self, "Error", response.split("@")[2])
-            if response.split("@")[1] == 'A': ## account error
+        if response.startswith("failed@"):
+            QMessageBox.warning(self, "failed", response.split("@")[2])
+            if response.split("@")[1] == 'A': ## account failed
                 self.id_input.clear()
                 self.password_input.clear()
-            elif response.split("@")[1] == 'B': ## password error
+            elif response.split("@")[1] == 'B': ## password failed
                 self.password_input.clear()
             return False
         
@@ -44,7 +44,7 @@ class APP(QWidget):
     
     def change_password(self):
         if self.main_window.whether_processing(self.current_account_id):
-            QMessageBox.warning(self, "Error", "Another operation is in progress in ATM.")
+            QMessageBox.warning(self, "failed", "Another operation is in progress in ATM.")
             return
         while True:
             self.operationInProgress.emit(self.current_account_id, True)
@@ -60,8 +60,8 @@ class APP(QWidget):
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
 
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if response.startswith("failed@"):
+                QMessageBox.warning(self, "failed", response.split("@")[1])
                 continue
 
             QMessageBox.information(self, "Success", "Password changed successfully")
@@ -74,7 +74,7 @@ class APP(QWidget):
 
     def transfer_money(self):
         if self.main_window.whether_processing(self.current_account_id):
-            QMessageBox.warning(self, "Error", "Another operation is in progress in ATM.")
+            QMessageBox.warning(self, "failed", "Another operation is in progress in ATM.")
             return
         while True:
             self.operationInProgress.emit(self.current_account_id, True)
@@ -95,8 +95,8 @@ class APP(QWidget):
             self.zmqThread.sendMsg(f"transfer_money@{self.current_account_id}@{receiver_id}@{amount}(#{self.app_id})")
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
-            if response.startswith("error@"):
-                QMessageBox.warning(self, "Error", response.split("@")[1])
+            if response.startswith("failed@"):
+                QMessageBox.warning(self, "failed", response.split("@")[1])
                 continue
 
             QMessageBox.information(self, "Success", response.split("@")[1])
