@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QFrame, QGridLayout, QMessageBox, QInputDialog
-from PyQt5.QtGui import QCloseEvent, QFont, QIntValidator
+from PyQt5.QtGui import QCloseEvent, QFont, QIntValidator,QRegularExpressionValidator
 import time
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import pyqtSignal, Qt,QRegularExpression
 
 class APP(QWidget):
     # This is a front end communication signal
@@ -174,7 +174,9 @@ class APP(QWidget):
 
         self.id_input = QLineEdit(self)
         self.id_input.setPlaceholderText('Account ID')
-        validator = QIntValidator(0, 9999999999, self)  # Allows only 10 digit numbers
+        # validator = QIntValidator(0, 9999999999, self)  # Allows only 10 digit numbers
+        reg_exp = QRegularExpression(r'^\d{1,10}$')  # Allows only up to 10 digit numbers
+        validator = QRegularExpressionValidator(reg_exp, self.id_input)
         self.id_input.setValidator(validator)
         self.id_input.hide()
 

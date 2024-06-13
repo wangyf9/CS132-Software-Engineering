@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout, QFrame, QGridLayout, QMessageBox, QInputDialog, QLineEdit
-from PyQt5.QtGui import QFont, QIntValidator
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QFont, QIntValidator, QRegularExpressionValidator
+from PyQt5.QtCore import pyqtSignal, Qt, QRegularExpression
 import time
 
 class ATM(QWidget):
@@ -303,7 +303,9 @@ class ATM(QWidget):
 
         self.id_input = QLineEdit(self)
         self.id_input.setPlaceholderText('Account ID')
-        validator = QIntValidator(0, 9999999999, self)  # Allows only 10 digit numbers
+        # validator = QIntValidator(0, 9999999999, self)  # Allows only 10 digit numbers
+        reg_exp = QRegularExpression(r'^\d{1,10}$')  # Allows only up to 10 digit numbers
+        validator = QRegularExpressionValidator(reg_exp, self.id_input)
         self.id_input.setValidator(validator)
         self.id_input.hide()
 

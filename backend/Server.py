@@ -95,7 +95,9 @@ class ZmqServerThread(threading.Thread):
 
         if command == "create_account":
             account_id = params[0]
+            print(len(account_id))
             password = params[1]
+            print(len(password))
             if not len(account_id) == 10:
                 self.send_string(address, "failed@A@Account ID must consist of 10 digits")
                 return
