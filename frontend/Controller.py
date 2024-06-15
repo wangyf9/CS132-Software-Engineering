@@ -85,32 +85,19 @@ class Controller(QMainWindow):
         self.setGeometry(300, 300, 400, 400)
 
     def open_app(self):
-        dialog = QInputDialog(self)
-        dialog.setInputMode(QInputDialog.IntInput)
-        dialog.setWindowTitle('Open App')
-        dialog.setLabelText('Enter app ID:')
-        dialog.setIntRange(1, 99)  # Set range for the input
-        dialog.setIntValue(1)  # Set default value
-        self.test_dict["d_dialog"]=dialog
-        ok = dialog.exec_()
-        if ok:
-            app_id = str(dialog.intValue())
-            if app_id in self.app_instances:
-                QMessageBox.warning(self, "Error", "App with specified ID is already open.")
-                return
-            
-            self.num_apps_opened += 1
-            new_app = APP_UI.APP(self.zmqThread, int(app_id), self)  # Pass as integer to APP
-            self.connect_signals(new_app)
-            new_app.show()
-            self.app_instances[app_id] = new_app
+        self.num_apps_opened += 1
+        appid = self.num_apps_opened
+        new_app = APP_UI.APP(self.zmqThread, int(appid), self)  # Pass as integer to APP
+        self.connect_signals(new_app)
+        new_app.show()
+        self.app_instances[str(appid)] = new_app
 
     def close_app(self):
         dialog = QInputDialog(self)
         dialog.setInputMode(QInputDialog.IntInput)
         dialog.setWindowTitle('Close App')
         dialog.setLabelText('Enter app ID:')
-        dialog.setIntRange(1, 99)  # Set range for the input
+        # dialog.setIntRange(1, 99)  # Set range for the input
         dialog.setIntValue(1)  # Set default value
         self.test_dict["d_dialog"]=dialog 
         
@@ -131,7 +118,7 @@ class Controller(QMainWindow):
 
     def handle_app_closed(self, app_id):
         del self.app_instances[str(app_id)]
-        self.num_apps_opened -= 1
+        # self.num_apps_opened -= 1
     
     def whether_logging_in(self, account_id):
         if self.logging_in_accounts.get(account_id) is not None:
@@ -189,7 +176,7 @@ class Controller(QMainWindow):
     
     def create_test_dict(self):
         self.test_dict={
-        "b_open":self.openAppButton,
+        # "b_open":self.openAppButton,
         "b_close":self.closeAppButton,
         "b_reset":self.resetButton,
         "d_dialog":None,
