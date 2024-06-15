@@ -164,7 +164,8 @@ class APP(QWidget):
             time.sleep(0.1)  # Wait for backend processing
             response = self.zmqThread.receivedMessage
             QMessageBox.information(self, "Transaction History", response.split("@")[1])
-
+            self.update_account_info()
+            
     def initUI(self):
         self.maxDepositAmount = 50000.00
         self.current_mode = None

@@ -105,7 +105,11 @@ class Controller(QMainWindow):
         if ok:
             app_id = str(dialog.intValue())
             if app_id in self.app_instances:
-                self.app_instances[app_id].close()
+                app_instance = self.app_instances[app_id]
+                if app_instance.logged_in == False:
+                    app_instance.close()
+                else:
+                    QMessageBox.warning(self, "Warning", "Please log out before closing the app.")
             else:
                 QMessageBox.warning(self, "Error", "App with specified ID is not open.")
 
@@ -116,7 +120,7 @@ class Controller(QMainWindow):
         app_instance.balance_changed.connect(self.handle_balance_changed_app)
         app_instance.transfer_changed.connect(self.handle_transfer_changed_app)
         app_instance.same_transfer_changed.connect(self.handle_transfer_same_in_app)
-        
+
     def handle_app_closed(self, app_id):
         del self.app_instances[str(app_id)]
         # self.num_apps_opened -= 1
