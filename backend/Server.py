@@ -190,7 +190,7 @@ class ZmqServerThread(threading.Thread):
                 return
 
             sender_starting_balance, sender_ending_balance, receiver_starting_balance, receiver_ending_balance = self.transfer_money(sender_id, receiver_id, amount)
-            self.send_string(address, f"success@${amount:.2f} transferred successfully. Sender balance: {sender_starting_balance} -> {sender_ending_balance}, Receiver balance: {receiver_starting_balance} -> {receiver_ending_balance}")
+            self.send_string(address, f"success@${amount:.2f} transferred successfully. Sender balance: {sender_starting_balance} -> {sender_ending_balance}")
 
         elif command == "withdraw_cash":
             account_id = params[0]

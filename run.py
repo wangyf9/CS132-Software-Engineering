@@ -8,8 +8,8 @@ run_path = os.path.abspath(__file__)
 run_dir = os.path.dirname(run_path)
 
 # Construct the absolute paths of main.py and ../TestCase/main.py
-main_path = os.path.join(run_dir, 'main.py')
-testcase_path = os.path.join(run_dir, '../TestCase/main.py')
+main_path = os.path.join(run_dir, './frontend/Controller.py')
+testcase_path = os.path.join(run_dir, './backend/main.py')
 
 # Run /TestCase/main.py in a new command line window
 p_testcase = subprocess.Popen(f'start cmd /k python {testcase_path} ', shell=True)
