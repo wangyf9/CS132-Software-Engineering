@@ -16,6 +16,8 @@ pip install pyzmq
 First, run /backend/main.py in Terminal to setup the judger.
 Then, run /frontend/Controller.py.py in ANOTHER Terminal to set up UI.
 
+Also, we provide a script file to run both of them. You can execute `python run.py` directly to get it.
+
 ## 4. available operation/event
   For this part, you can refer to the requirement and user manual document to learn about details.
   For our implementation, we only allow click in the UI, but can not go on api testing because of our framework building

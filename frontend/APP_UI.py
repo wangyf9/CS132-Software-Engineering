@@ -165,7 +165,7 @@ class APP(QWidget):
             response = self.zmqThread.receivedMessage
             QMessageBox.information(self, "Transaction History", response.split("@")[1])
             self.update_account_info()
-            
+
     def initUI(self):
         self.maxDepositAmount = 50000.00
         self.current_mode = None
@@ -207,7 +207,7 @@ class APP(QWidget):
         self.query_button.hide()
 
         self.close_button = QPushButton('Close', self)
-        self.close_button.clicked.connect(self.close_action)
+        self.close_button.clicked.connect(self.close_app)
 
         self.return_button = QPushButton('Log Out', self)
         self.change_password_button = QPushButton('Change Password', self)
@@ -326,7 +326,7 @@ class APP(QWidget):
     #         self.main_window.set_log_status(self, self.current_account_id, None)
     #     event.accept()  # Let the window close
 
-    def close_action(self):
+    def close_app(self):
         if self.logged_in:
             QMessageBox.warning(self, "Warning", "Please log out before closing the app.")
             return
