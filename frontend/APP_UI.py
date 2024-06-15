@@ -10,6 +10,7 @@ class APP(QWidget):
     password_changed = pyqtSignal(int)
     balance_changed = pyqtSignal(int)
     transfer_changed = pyqtSignal(int)
+    same_transfer_changed = pyqtSignal(int)
     def __init__(self, zmqThread, app_id, main_window):
         super().__init__()
         self.zmqThread = zmqThread
@@ -108,6 +109,7 @@ class APP(QWidget):
             self.balance_changed.emit(return_id)
             self.operationInProgress.emit(self.current_account_id, False)
             self.transfer_changed.emit(int(receiver_id))
+            self.same_transfer_changed.emit(int(receiver_id))
             self.update_account_info()
             self.main_window.set_operatoin_status(self.current_account_id, False)
             break

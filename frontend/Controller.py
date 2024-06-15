@@ -115,7 +115,8 @@ class Controller(QMainWindow):
         app_instance.password_changed.connect(self.handle_password_changed_app)
         app_instance.balance_changed.connect(self.handle_balance_changed_app)
         app_instance.transfer_changed.connect(self.handle_transfer_changed_app)
-
+        app_instance.same_transfer_changed.connect(self.handle_transfer_same_in_app)
+        
     def handle_app_closed(self, app_id):
         del self.app_instances[str(app_id)]
         # self.num_apps_opened -= 1
@@ -167,6 +168,11 @@ class Controller(QMainWindow):
     def handle_transfer_changed_app(self, account_id):
         if self.atm.current_account_id is not None and int(self.atm.current_account_id) == account_id:
             self.atm.update_account_info()
+
+    def handle_transfer_same_in_app(self, account_id):
+        for app_id, app_instance in self.app_instances.items():
+            if app_instance.logged_in and (int(app_instance.current_account_id) == account_id):
+                app_instance.update_account_info()
 
     def reset(self):
         confirmation = QMessageBox.question(self, 'Reset Database', 'Are you sure you want to reset the database?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
