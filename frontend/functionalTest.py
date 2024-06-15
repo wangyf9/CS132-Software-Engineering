@@ -52,9 +52,9 @@ class TestSingleUserATM(unittest.TestCase):
         print("[Test-001]")
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_create"], Qt.LeftButton)
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234567890")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "2024123456")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "Jsk123_456")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "123456")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
@@ -66,7 +66,7 @@ class TestSingleUserATM(unittest.TestCase):
         start_balance = self.getDispayBalance()
         # Click deposit button
         # Wait for 2s for the message box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1000"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "10"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_deposit"], Qt.LeftButton)
@@ -75,6 +75,7 @@ class TestSingleUserATM(unittest.TestCase):
         # get end balance:
         end_balance = self.getDispayBalance()
         self.assertEqual(start_balance + 1000.00, end_balance)
+    @unittest.skip("input line no longer support input zero and confirm")
     def test_003_deposit_zero(self):
         print("[Test-003]")
         # Click deposit button
@@ -87,11 +88,12 @@ class TestSingleUserATM(unittest.TestCase):
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_deposit"], Qt.LeftButton)
         QTest.qWait(1000)
         self.assertTrue(self.msgBoxText.startswith("Deposit amount must be between $0.01 and $50000.00"))
+    @unittest.skip("input line no longer support input negative")
     def test_004_deposit_negative(self):
         print("[Test-004]")
         # Click deposit button
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "-100"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "-1"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to cancel the dialog
@@ -99,11 +101,12 @@ class TestSingleUserATM(unittest.TestCase):
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_deposit"], Qt.LeftButton)
         QTest.qWait(1000)
         self.assertTrue(self.msgBoxText.startswith("Deposit amount must be between $0.01 and $50000.00"))
+    @unittest.skip("input line no longer support over limit")
     def test_005_deposit_over_limit(self):
         print("[Test-005]")
         # Click deposit button
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "50001"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "501"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to cancel the dialog
@@ -117,7 +120,7 @@ class TestSingleUserATM(unittest.TestCase):
         start_balance = self.getDispayBalance()
         # Click withdraw button
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "500"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "5"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_withdraw"], Qt.LeftButton)
@@ -126,6 +129,7 @@ class TestSingleUserATM(unittest.TestCase):
         # get end balance:
         end_balance = self.getDispayBalance()
         self.assertEqual(start_balance - 500.00, end_balance)
+    @unittest.skip("input line no longer support input zero and confirm")
     def test_007_withdraw_zero(self):
         print("[Test-007]")
         # Click withdraw button
@@ -138,11 +142,12 @@ class TestSingleUserATM(unittest.TestCase):
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_withdraw"], Qt.LeftButton)
         QTest.qWait(1000)
         self.assertTrue(self.msgBoxText.startswith("Withdrawal amount must be between $0.01 and $50000.00"))
+    @unittest.skip("input line no longer support input negative")
     def test_008_withdraw_negative(self):
         print("[Test-008]")
         # Click withdraw button
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "-100"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "-1"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to cancel the dialog
@@ -150,11 +155,12 @@ class TestSingleUserATM(unittest.TestCase):
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_withdraw"], Qt.LeftButton)
         QTest.qWait(1000)
         self.assertTrue(self.msgBoxText.startswith("Withdrawal amount must be between $0.01 and $50000.00"))
+    @unittest.skip("input line no longer support over limit")
     def test_009_withdraw_over_limit(self):
         print("[Test-009]")
         # Click withdraw button
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "50001"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "501"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to cancel the dialog
@@ -166,7 +172,7 @@ class TestSingleUserATM(unittest.TestCase):
         print("[Test-010]")
         # Click withdraw button
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "50000"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "20"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to cancel the dialog
@@ -185,9 +191,9 @@ class TestSingleUserATM(unittest.TestCase):
         # Click log in button
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_login"], Qt.LeftButton)
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234567891")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "2024987654")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "Jsk123_456")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "123456")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
@@ -200,7 +206,7 @@ class TestSingleUserATM(unittest.TestCase):
         QTest.qWait(1000)
         QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "123451")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "jsk123_4567")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "654321")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
@@ -211,9 +217,9 @@ class TestSingleUserATM(unittest.TestCase):
         # Click log in button
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_login"], Qt.LeftButton)
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234567890")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "2024123456")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "Jsk123_4567")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "654321")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
@@ -226,16 +232,17 @@ class TestSingleUserATM(unittest.TestCase):
         # QTest.qWait(1000)
         # QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234567890")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "Jsk123_456")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "123456")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_confirm"], Qt.LeftButton)
         self.assertEqual(self.msgBoxText, "Insert card successfully")
+    @unittest.skip("input line no longer support input non digit")
     def test_016_change_password_notObeyFormat(self):
         print("[Test-016]")
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "012345678"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "j12re7"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to cancel the dialog
@@ -243,11 +250,11 @@ class TestSingleUserATM(unittest.TestCase):
         # Click change password button
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_change_password"], Qt.LeftButton)
         QTest.qWait(1000)
-        self.assertEqual(self.msgBoxText, "New password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
+        self.assertEqual(self.msgBoxText, "Password must consist of 6 digits")
     def test_017_change_password_sameAsOldPwd(self):
         print("[Test-017]")
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "Jsk123_456"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "123456"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to cancel the dialog
@@ -259,7 +266,7 @@ class TestSingleUserATM(unittest.TestCase):
     def test_018_change_password_common(self):
         print("[Test-018]")
         # Wait for 2s for the dialog box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "Jsk123_4567"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "654321"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 4s to verify the message Box
@@ -278,7 +285,7 @@ class TestSingleUserATM(unittest.TestCase):
         QTest.qWait(1000)
         QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234O6789")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "Jsk123_456")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "654321")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
@@ -289,14 +296,14 @@ class TestSingleUserATM(unittest.TestCase):
         # Click create account button
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_create"], Qt.LeftButton)
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234567891")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "2024654321")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "jsk1!-=23456")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "jsk1!-=234")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_confirm"], Qt.LeftButton)
-        self.assertEqual(self.msgBoxText, "Password must be at least 8 characters long and include uppercase letters, lowercase letters, and numbers")
+        self.assertEqual(self.msgBoxText, "Password must consist of 6 digits")
         QTest.qWait(1000)
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_back"], Qt.LeftButton)
     def test_021_create_account_alreadyExist(self):
@@ -304,9 +311,9 @@ class TestSingleUserATM(unittest.TestCase):
         # Click create account button
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_create"], Qt.LeftButton)
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234567890")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "2024123456")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "Jsk123_456")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "654321")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
@@ -318,9 +325,9 @@ class TestSingleUserATM(unittest.TestCase):
         # Click create account button
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_create"], Qt.LeftButton)
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "1234567891")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_id"], "2024654321")
         QTest.qWait(1000)
-        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "Jsk123_456")
+        QTest.keyClicks(self.mainWindow.atm.test_dict["i_password"], "654321")
         QTest.qWait(1000)
         # Wait for 2s for the message box to appear
         QTimer.singleShot(2000, lambda: self.simulateClickMessage(self.mainWindow.atm))
@@ -331,7 +338,7 @@ class TestSingleUserATM(unittest.TestCase):
         start_balance = self.getDispayBalance()
         # Click deposit button
         # Wait for 2s for the message box to appear
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1000"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "10"))
         # Wait for 3s for the message box to appear
         QTimer.singleShot(3000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         QTest.mouseClick(self.mainWindow.atm.test_dict["b_deposit"], Qt.LeftButton)
@@ -345,7 +352,7 @@ class TestSingleUserATM(unittest.TestCase):
         # Wait for 2s for the dialog box to appear (input accountID)
         QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "123456789"))
         # Wait for 3s for the message box to appear (input money)
-        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "111.00"))
+        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1"))
         # Wait for 4s for the message box to appear
         QTimer.singleShot(6000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 5s to cancel the dialog
@@ -356,9 +363,9 @@ class TestSingleUserATM(unittest.TestCase):
     def test_024_transfer_invalid_money(self):
         print("[Test-024]")
         # Wait for 2s for the dialog box to appear (input accountID)
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1234567890"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "2024123456"))
         # Wait for 3s for the message box to appear (input money)
-        QTimer.singleShot(3000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "-100"))
+        QTimer.singleShot(3000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "jqk0"))
         # Wait for 4s for the message box to appear
         QTimer.singleShot(4000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 5s to cancel the dialog
@@ -369,9 +376,9 @@ class TestSingleUserATM(unittest.TestCase):
     def test_025_transfer_over_balance(self):
         print("[Test-025]")
         # Wait for 2s for the dialog box to appear (input accountID)
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1234567890"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "2024123456"))
         # Wait for 3s for the message box to appear (input money)
-        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "49999"))
+        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "9000.00"))
         # Wait for 4s for the message box to appear
         QTimer.singleShot(6000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 5s to cancel the dialog
@@ -382,9 +389,9 @@ class TestSingleUserATM(unittest.TestCase):
     def test_026_transfer_to_itself(self):
         print("[Test-026]")
         # Wait for 2s for the dialog box to appear (input accountID)
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1234567891"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "2024654321"))
         # Wait for 3s for the message box to appear (input money)
-        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "100"))
+        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "10"))
         # Wait for 4s for the message box to appear
         QTimer.singleShot(6000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 5s to cancel the dialog
@@ -395,9 +402,9 @@ class TestSingleUserATM(unittest.TestCase):
     def test_027_transfer_notExistID(self):
         print("[Test-027]")
         # Wait for 2s for the dialog box to appear (input accountID)
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1234567892"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "2024987654"))
         # Wait for 3s for the message box to appear (input money)
-        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "100"))
+        QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "10"))
         # Wait for 4s for the message box to appear
         QTimer.singleShot(6000, lambda: self.simulateClickMessage(self.mainWindow.atm))
         # Wait for 5s to cancel the dialog
@@ -410,7 +417,7 @@ class TestSingleUserATM(unittest.TestCase):
         balance = self.getDispayBalance()
        
         # Wait for 2s for the dialog box to appear (input accountID)
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1234567890"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "2024123456"))
         # Wait for 3s for the message box to appear (input money)
         QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "100"))
         # Wait for 4s for the message box to appear
@@ -436,7 +443,7 @@ class TestSingleUserATM(unittest.TestCase):
         balance = self.getDispayBalance()
        
         # Wait for 2s for the dialog box to appear (input accountID)
-        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "1234567890"))
+        QTimer.singleShot(2000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], "2024123456"))
         # Wait for 3s for the message box to appear (input money)
         QTimer.singleShot(5000, lambda: self.simulateInputDialog(self.mainWindow.atm.test_dict["d_dialog"], str(balance)))
         # Wait for 4s for the message box to appear

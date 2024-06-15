@@ -158,8 +158,8 @@ class ZmqServerThread(threading.Thread):
             if new_password == old_password:
                 self.send_string(address, "failed@New password cannot be the same as the old password")
                 return
-            if not len(new_password) == 6:
-                self.send_string(address, "failed@B@Password must consist of 6 digits")
+            if not len(new_password) == 6 or not new_password.isdigit():
+                self.send_string(address, "failed@Password must consist of 6 digits")
                 return
             self.change_password(account_id, new_password)
             self.send_string(address, "success@Password changed successfully")

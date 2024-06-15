@@ -25,6 +25,7 @@ class Controller(QMainWindow):
         self.atm.password_changed.connect(self.handle_password_changed_atm)
         self.atm.balance_changed.connect(self.handle_balance_changed_atm)
         self.atm.transfer_changed.connect(self.handle_transfer_changed_atm)
+        self.create_test_dict()
         
     def initUI(self):
         self.label = QLabel('Banking System Controller', self)
@@ -90,7 +91,7 @@ class Controller(QMainWindow):
         dialog.setLabelText('Enter app ID:')
         dialog.setIntRange(1, 99)  # Set range for the input
         dialog.setIntValue(1)  # Set default value
-        
+        self.test_dict["d_dialog"]=dialog
         ok = dialog.exec_()
         if ok:
             app_id = str(dialog.intValue())
@@ -111,6 +112,7 @@ class Controller(QMainWindow):
         dialog.setLabelText('Enter app ID:')
         dialog.setIntRange(1, 99)  # Set range for the input
         dialog.setIntValue(1)  # Set default value
+        self.test_dict["d_dialog"]=dialog 
         
         ok = dialog.exec_()
         if ok:
@@ -184,6 +186,14 @@ class Controller(QMainWindow):
         if confirmation == QMessageBox.Yes:
             reset_database()
             QMessageBox.information(self, 'Success', 'Database has been reset.')
+    
+    def create_test_dict(self):
+        self.test_dict={
+        "b_open":self.openAppButton,
+        "b_close":self.closeAppButton,
+        "b_reset":self.resetButton,
+        "d_dialog":None,
+        }
     
 if __name__ == '__main__':
     identity = "Team15"

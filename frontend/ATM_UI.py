@@ -13,6 +13,7 @@ class ATM(QWidget):
         self.zmqThread = zmqThread
         self.main_window = main_window
         self.initUI()
+        self.create_test_dict()
 
     def create_account(self):
         account_id = self.id_input.text()
@@ -70,6 +71,7 @@ class ATM(QWidget):
         if not self.account_info_label:
             self.account_info_label = QLabel(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}", self)
             self.layout().addWidget(self.account_info_label)
+            self.test_dict["l_account"] = self.account_info_label
         else:
             self.account_info_label.setText(f"Account ID: {self.current_account_id}\nBalance: ${balance:.2f}")
         self.account_info_label.show()
@@ -97,7 +99,8 @@ class ATM(QWidget):
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True)
-            new_password, ok = QInputDialog.getInt(self, "Change Password", "Enter new password (6 digits):", min=0, max=999999)
+            self.test_dict['d_dialog'] = QInputDialog(self)
+            new_password, ok = self.test_dict['d_dialog'].getText(self, "Change Password", "Enter new password (6 digits):")
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
@@ -125,12 +128,13 @@ class ATM(QWidget):
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True)
-            receiver_id, ok = QInputDialog.getText(self, "Transfer Money", "Enter receiver's account ID:")
+            self.test_dict['d_dialog'] = QInputDialog(self)
+            receiver_id, ok = self.test_dict['d_dialog'].getText(self, "Transfer Money", "Enter receiver's account ID:")
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
-
-            amount, ok = QInputDialog.getDouble(self, "Transfer Money", "Enter amount to transfer:", decimals=2)
+            self.test_dict['d_dialog'] = QInputDialog(self)
+            amount, ok = self.test_dict['d_dialog'].getDouble(self, "Transfer Money", "Enter amount to transfer:", decimals=2)
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False)
                 return
@@ -167,7 +171,8 @@ class ATM(QWidget):
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
-            amount, ok = QInputDialog.getInt(self, "Deposit Cash", "Enter number to deposit(1 - 500):", min=1, max=500)
+            self.test_dict['d_dialog'] = QInputDialog(self)
+            amount, ok = self.test_dict['d_dialog'].getInt(self, "Deposit Cash", "Enter number to deposit(1 - 500):", min=1, max=500)
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
@@ -207,7 +212,8 @@ class ATM(QWidget):
             return
         while True:
             self.main_window.set_operatoin_status(self.current_account_id, True) 
-            amount, ok = QInputDialog.getInt(self, "Withdraw Cash", "Enter number to withdraw(1 - 500):", min=1, max=500)
+            self.test_dict['d_dialog'] = QInputDialog(self)
+            amount, ok = self.test_dict['d_dialog'].getInt(self, "Withdraw Cash", "Enter number to withdraw(1 - 500):", min=1, max=500)
             if not ok:
                 self.main_window.set_operatoin_status(self.current_account_id, False) 
                 return
@@ -312,7 +318,8 @@ class ATM(QWidget):
         self.password_input = QLineEdit(self)
         self.password_input.setPlaceholderText('Password')
         self.password_input.setEchoMode(QLineEdit.Password)
-        validator = QIntValidator(0, 999999, self)  # Allows only 6 digit numbers
+        reg_exp = QRegularExpression(r'^\d{1,6}$')  # Allows only up to 6 digit numbers
+        validator = QRegularExpressionValidator(reg_exp, self.password_input)
         self.password_input.setValidator(validator)
         self.password_input.hide()
 
@@ -452,3 +459,22 @@ class ATM(QWidget):
         elif self.current_mode == 'login':
             if self.insert_card():
                 self.insert_card_successful()
+
+    def create_test_dict(self):
+        self.test_dict = {
+            'b_create': self.create_button,
+            'b_login': self.login_button,
+            'b_confirm': self.confirm_button,
+            'b_back': self.back_button,
+            'b_cancel': self.cancel_button,
+            'b_return': self.return_button,
+            'b_withdraw': self.withdraw_button,
+            'b_deposit': self.deposit_button,
+            'b_change_password': self.change_password_button,
+            'b_transfer': self.transfer_money_button,
+            'b_query': self.query_button,
+            'i_id': self.id_input,
+            'i_password': self.password_input,
+            "l_account":self.account_info_label,
+            'd_dialog':None
+        }

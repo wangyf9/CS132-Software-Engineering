@@ -17,6 +17,7 @@ class APP(QWidget):
         self.main_window = main_window
         self.logged_in = False
         self.initUI()
+        self.create_test_dict()
 
     def log_in(self):
         account_id = self.id_input.text()
@@ -49,7 +50,8 @@ class APP(QWidget):
         while True:
             self.operationInProgress.emit(self.current_account_id, True)
             self.main_window.set_operatoin_status(self.current_account_id, True)
-            new_password, ok = QInputDialog.getInt(self, "Change Password", "Enter new password (6 digits):", min=0, max=999999)
+            self.test_dict["d_dialog"] = QInputDialog(self)
+            new_password, ok = self.test_dict["d_dialog"].getText(self, "Change Password", "Enter new password (6 digits):")
             if not ok:
                 self.operationInProgress.emit(self.current_account_id, False)
                 self.main_window.set_operatoin_status(self.current_account_id, False)
@@ -79,13 +81,14 @@ class APP(QWidget):
         while True:
             self.operationInProgress.emit(self.current_account_id, True)
             self.main_window.set_operatoin_status(self.current_account_id, True)
-            receiver_id, ok = QInputDialog.getText(self, "Transfer Money", "Enter receiver's account ID:")
+            self.test_dict["d_dialog"] = QInputDialog(self)
+            receiver_id, ok = self.test_dict["d_dialog"].getText(self, "Transfer Money", "Enter receiver's account ID:")
             if not ok:
                 self.operationInProgress.emit(self.current_account_id, False)
                 self.main_window.set_operatoin_status(self.current_account_id, False)
                 return
-            
-            amount, ok = QInputDialog.getDouble(self, "Transfer Money", "Enter amount to transfer:", decimals=2)
+            self.test_dict["d_dialog"] = QInputDialog(self)
+            amount, ok = self.test_dict["d_dialog"].getDouble(self, "Transfer Money", "Enter amount to transfer:", decimals=2)
             if not ok:
                 self.operationInProgress.emit(self.current_account_id, False)
                 self.main_window.set_operatoin_status(self.current_account_id, False)
@@ -183,7 +186,8 @@ class APP(QWidget):
         self.password_input = QLineEdit(self)
         self.password_input.setPlaceholderText('Password')
         self.password_input.setEchoMode(QLineEdit.Password)
-        validator = QIntValidator(0, 999999, self)  # Allows only 6 digit numbers
+        reg_exp = QRegularExpression(r'^\d{1,6}$')  # Allows only up to 6 digit numbers
+        validator = QRegularExpressionValidator(reg_exp, self.password_input)
         self.password_input.setValidator(validator)
         self.password_input.hide()
 
@@ -316,4 +320,20 @@ class APP(QWidget):
             self.main_window.set_log_status(self, self.current_account_id, None)
         event.accept()  # Let the window close
 
+    def create_test_dict(self):
 
+        self.test_dict={
+            "l_label":self.label,
+            "l_subtitle":self.subtitle_label,
+            "l_account":self.account_info_label,
+            "b_login":self.login_button,
+            "i_id":self.id_input,
+            "i_password":self.password_input,
+            "b_confirm":self.confirm_button,
+            "b_back":self.back_button,
+            "b_query":self.query_button,
+            "b_return":self.return_button,
+            "b_change_password":self.change_password_button,
+            "b_transfer":self.transfer_money_button,
+            "d_dialog": None
+        }
