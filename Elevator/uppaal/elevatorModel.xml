@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+broadcast chan f1_up;
+broadcast chan f1_up_arrive;
+broadcast chan E1_f1_up;
+broadcast chan E2_f1_up;
+
+broadcast chan f2_up;
+broadcast chan f2_up_arrive;
+broadcast chan E1_f2_up;
+broadcast chan E2_f2_up;
+
+broadcast chan f2_down;
+broadcast chan f2_down_arrive;
+broadcast chan E1_f2_down;
+broadcast chan E2_f2_down;
+
+broadcast chan f3_down;
+broadcast chan f3_down_arrive;
+broadcast chan E1_f3_down;
+broadcast chan E2_f3_down;
+
+// press event
+broadcast chan p_f1_up;
+broadcast chan p_f2_up;
+broadcast chan p_f2_down;
+broadcast chan p_f3_down;
+
+// arrive event
+broadcast chan a_f1_up;
+broadcast chan a_f2_up;
+broadcast chan a_f2_down;
+broadcast chan a_f3_down;</declaration>
+	<template>
+		<name>Passenger</name>
+		<location id="id0" x="-68" y="-68">
+		</location>
+		<location id="id1" x="-76" y="-204">
+		</location>
+		<location id="id2" x="-272" y="-68">
+		</location>
+		<location id="id3" x="-68" y="85">
+		</location>
+		<location id="id4" x="153" y="-68">
+		</location>
+		<init ref="id0"/>
+		<transition id="id5">
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-42" y="51">a_f3_down?</label>
+			<nail x="-25" y="17"/>
+		</transition>
+		<transition id="id6">
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-178" y="51">p_f3_down!</label>
+			<nail x="-102" y="17"/>
+		</transition>
+		<transition id="id7">
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="51" y="-34">a_f2_down?</label>
+			<nail x="59" y="-34"/>
+			<nail x="-42" y="-59"/>
+		</transition>
+		<transition id="id8">
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="51" y="-119">p_f2_down!</label>
+			<nail x="59" y="-102"/>
+		</transition>
+		<transition id="id9">
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-212" y="-34">a_f1_up?</label>
+			<nail x="-178" y="-34"/>
+		</transition>
+		<transition id="id10">
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-212" y="-119">p_f1_up!</label>
+			<nail x="-178" y="-102"/>
+		</transition>
+		<transition id="id11">
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-42" y="-187">a_f2_up?</label>
+			<nail x="-34" y="-144"/>
+		</transition>
+		<transition id="id12">
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-161" y="-187">p_f2_up!</label>
+			<nail x="-102" y="-144"/>
+		</transition>
+	</template>
+	<template>
+		<name>floor_3_down</name>
+		<declaration>clock t;
+int f3_down_assign = 0;
+</declaration>
+		<location id="id13" x="-221" y="-195">
+			<committed/>
+		</location>
+		<location id="id14" x="-221" y="-25">
+			<name x="-255" y="8">Pressed</name>
+			<label kind="invariant" x="-231" y="-8">t&lt;=1</label>
+		</location>
+		<location id="id15" x="-76" y="-255">
+			<name x="-127" y="-297">Not_Pressed</name>
+		</location>
+		<location id="id16" x="76" y="-195">
+			<committed/>
+		</location>
+		<location id="id17" x="76" y="-25">
+			<name x="42" y="0">Assigned</name>
+		</location>
+		<init ref="id15"/>
+		<transition id="id18">
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-153" y="-153">t&gt;=1</label>
+			<nail x="-153" y="-144"/>
+		</transition>
+		<transition id="id19">
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-298" y="-127">f3_down!</label>
+		</transition>
+		<transition id="id20">
+			<source ref="id15"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-195" y="-255">p_f3_down?</label>
+			<label kind="assignment" x="-144" y="-221">t=0</label>
+		</transition>
+		<transition id="id21">
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-8" y="-255">a_f3_down!</label>
+		</transition>
+		<transition id="id22">
+			<source ref="id17"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="92" y="-140">f3_down_arrive?</label>
+		</transition>
+		<transition id="id23">
+			<source ref="id14"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="-110" y="42">E2_f3_down?</label>
+			<nail x="-68" y="34"/>
+		</transition>
+		<transition id="id24">
+			<source ref="id14"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="-119" y="-85">E1_f3_down?</label>
+			<nail x="-93" y="-59"/>
+			<nail x="-51" y="-59"/>
+		</transition>
+	</template>
+	<template>
+		<name>floor_2_down</name>
+		<declaration>clock t;
+int f2_down_assign = 0;
+</declaration>
+		<location id="id25" x="-221" y="-195">
+			<committed/>
+		</location>
+		<location id="id26" x="-221" y="-25">
+			<name x="-255" y="8">Pressed</name>
+			<label kind="invariant" x="-231" y="-8">t&lt;=1</label>
+		</location>
+		<location id="id27" x="-76" y="-255">
+			<name x="-127" y="-297">Not_Pressed</name>
+		</location>
+		<location id="id28" x="76" y="-195">
+			<committed/>
+		</location>
+		<location id="id29" x="76" y="-25">
+			<name x="42" y="0">Assigned</name>
+		</location>
+		<init ref="id27"/>
+		<transition id="id30">
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="guard" x="-153" y="-153">t&gt;=1</label>
+			<nail x="-153" y="-144"/>
+		</transition>
+		<transition id="id31">
+			<source ref="id25"/>
+			<target ref="id26"/>
+			<label kind="synchronisation" x="-298" y="-127">f2_down!</label>
+		</transition>
+		<transition id="id32">
+			<source ref="id27"/>
+			<target ref="id25"/>
+			<label kind="synchronisation" x="-195" y="-255">p_f2_down?</label>
+			<label kind="assignment" x="-153" y="-221">t=0</label>
+		</transition>
+		<transition id="id33">
+			<source ref="id28"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="-8" y="-255">a_f2_down!</label>
+		</transition>
+		<transition id="id34">
+			<source ref="id29"/>
+			<target ref="id28"/>
+			<label kind="synchronisation" x="92" y="-140">f2_down_arrive?</label>
+		</transition>
+		<transition id="id35">
+			<source ref="id26"/>
+			<target ref="id29"/>
+			<label kind="synchronisation" x="-110" y="42">E2_f2_down?</label>
+			<nail x="-68" y="34"/>
+		</transition>
+		<transition id="id36">
+			<source ref="id26"/>
+			<target ref="id29"/>
+			<label kind="synchronisation" x="-119" y="-85">E1_f2_down?</label>
+			<nail x="-93" y="-59"/>
+			<nail x="-51" y="-59"/>
+		</transition>
+	</template>
+	<template>
+		<name>floor_2_up</name>
+		<declaration>clock t;
+int f2_up_assign = 0;
+</declaration>
+		<location id="id37" x="-221" y="-195">
+			<committed/>
+		</location>
+		<location id="id38" x="-221" y="-25">
+			<name x="-255" y="8">Pressed</name>
+			<label kind="invariant" x="-231" y="-8">t&lt;=1</label>
+		</location>
+		<location id="id39" x="-76" y="-255">
+			<name x="-127" y="-297">Not_Pressed</name>
+		</location>
+		<location id="id40" x="76" y="-195">
+			<committed/>
+		</location>
+		<location id="id41" x="76" y="-25">
+			<name x="42" y="0">Assigned</name>
+		</location>
+		<init ref="id39"/>
+		<transition id="id42">
+			<source ref="id38"/>
+			<target ref="id37"/>
+			<label kind="guard" x="-153" y="-153">t&gt;=1</label>
+			<nail x="-153" y="-144"/>
+		</transition>
+		<transition id="id43">
+			<source ref="id37"/>
+			<target ref="id38"/>
+			<label kind="synchronisation" x="-298" y="-127">f2_up!</label>
+		</transition>
+		<transition id="id44">
+			<source ref="id39"/>
+			<target ref="id37"/>
+			<label kind="synchronisation" x="-195" y="-255">p_f2_up?</label>
+			<label kind="assignment" x="-144" y="-221">t=0</label>
+		</transition>
+		<transition id="id45">
+			<source ref="id40"/>
+			<target ref="id39"/>
+			<label kind="synchronisation" x="-8" y="-255">a_f2_up!</label>
+		</transition>
+		<transition id="id46">
+			<source ref="id41"/>
+			<target ref="id40"/>
+			<label kind="synchronisation" x="92" y="-140">f2_up_arrive?</label>
+		</transition>
+		<transition id="id47">
+			<source ref="id38"/>
+			<target ref="id41"/>
+			<label kind="synchronisation" x="-110" y="42">E2_f2_up?</label>
+			<nail x="-68" y="34"/>
+		</transition>
+		<transition id="id48">
+			<source ref="id38"/>
+			<target ref="id41"/>
+			<label kind="synchronisation" x="-119" y="-85">E1_f2_up?</label>
+			<nail x="-93" y="-59"/>
+			<nail x="-51" y="-59"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">floor_1_up</name>
+		<declaration>// Place local declarations here.
+clock t;
+int f1_up_assign = 0;
+
+</declaration>
+		<location id="id49" x="-221" y="-195">
+			<committed/>
+		</location>
+		<location id="id50" x="-221" y="-25">
+			<name x="-255" y="8">Pressed</name>
+			<label kind="invariant" x="-231" y="-8">t&lt;=1</label>
+		</location>
+		<location id="id51" x="-76" y="-255">
+			<name x="-127" y="-297">Not_Pressed</name>
+		</location>
+		<location id="id52" x="76" y="-195">
+			<committed/>
+		</location>
+		<location id="id53" x="76" y="-25">
+			<name x="42" y="0">Assigned</name>
+		</location>
+		<init ref="id51"/>
+		<transition id="id54">
+			<source ref="id50"/>
+			<target ref="id49"/>
+			<label kind="guard" x="-153" y="-153">t&gt;=1</label>
+			<nail x="-153" y="-144"/>
+		</transition>
+		<transition id="id55">
+			<source ref="id49"/>
+			<target ref="id50"/>
+			<label kind="synchronisation" x="-298" y="-127">f1_up!</label>
+		</transition>
+		<transition id="id56">
+			<source ref="id51"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="-195" y="-255">p_f1_up?</label>
+			<label kind="assignment" x="-144" y="-221">t=0</label>
+		</transition>
+		<transition id="id57">
+			<source ref="id52"/>
+			<target ref="id51"/>
+			<label kind="synchronisation" x="-8" y="-255">a_f1_up!</label>
+		</transition>
+		<transition id="id58">
+			<source ref="id53"/>
+			<target ref="id52"/>
+			<label kind="synchronisation" x="92" y="-140">f1_up_arrive?</label>
+		</transition>
+		<transition id="id59">
+			<source ref="id50"/>
+			<target ref="id53"/>
+			<label kind="synchronisation" x="-110" y="42">E2_f1_up?</label>
+			<nail x="-68" y="34"/>
+		</transition>
+		<transition id="id60">
+			<source ref="id50"/>
+			<target ref="id53"/>
+			<label kind="synchronisation" x="-119" y="-85">E1_f1_up?</label>
+			<nail x="-93" y="-59"/>
+			<nail x="-51" y="-59"/>
+		</transition>
+	</template>
+	<template>
+		<name>elevator1</name>
+		<declaration>clock t;
+int targetFloor = 10;
+int currentPos = 10;
+int respondButton = 0;// 0:none;1:f1_up;2:f2_up;3:f2_down;4:f3_down
+int direction = 0;// 0:wait, 1up, 2down
+bool doorOpen =  false;
+void f1up(){
+    targetFloor = 10;
+    respondButton = 1;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}
+void f2up(){
+    targetFloor = 20;
+    respondButton = 2;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}
+void f2down(){
+    targetFloor = 20;
+    respondButton = 3;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}
+void f3down(){
+    targetFloor = 30;
+    respondButton = 4;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}
+
+
+</declaration>
+		<location id="id61" x="161" y="-263">
+			<name x="151" y="-297">stop_closing_door</name>
+			<label kind="invariant" x="151" y="-246">t&lt;=3</label>
+		</location>
+		<location id="id62" x="-910" y="17">
+			<name x="-1062" y="-8">stop_door_closed</name>
+		</location>
+		<location id="id63" x="161" y="17">
+			<name x="178" y="60">stop_door_opened</name>
+			<label kind="invariant" x="151" y="34">t&lt;=3</label>
+		</location>
+		<location id="id64" x="-782" y="255">
+			<committed/>
+		</location>
+		<location id="id65" x="-655" y="17">
+			<name x="-671" y="-34">move_prepare</name>
+			<committed/>
+		</location>
+		<location id="id66" x="-790" y="-59">
+			<committed/>
+		</location>
+		<location id="id67" x="-790" y="76">
+			<committed/>
+		</location>
+		<location id="id68" x="-790" y="-195">
+			<committed/>
+		</location>
+		<location id="id69" x="-264" y="17">
+			<name x="-315" y="-17">open_prepare</name>
+			<committed/>
+		</location>
+		<location id="id70" x="-51" y="17">
+			<name x="-127" y="-25">stop_opening_door</name>
+			<label kind="invariant" x="-61" y="34">t&lt;=3</label>
+		</location>
+		<location id="id71" x="-366" y="-76">
+			<name x="-376" y="-110">up</name>
+			<label kind="invariant" x="-348" y="-85">t&lt;=1</label>
+		</location>
+		<location id="id72" x="-366" y="93">
+			<name x="-376" y="59">down</name>
+			<label kind="invariant" x="-374" y="110">t&lt;=1</label>
+		</location>
+		<location id="id73" x="-365" y="-212">
+			<committed/>
+		</location>
+		<location id="id74" x="-348" y="229">
+			<committed/>
+		</location>
+		<init ref="id62"/>
+		<transition id="id75">
+			<source ref="id61"/>
+			<target ref="id62"/>
+			<label kind="guard" x="-900" y="-284">t&gt;=3</label>
+			<label kind="assignment" x="-900" y="-250">t=0,doorOpen=false</label>
+			<nail x="-909" y="-263"/>
+		</transition>
+		<transition id="id76">
+			<source ref="id63"/>
+			<target ref="id61"/>
+			<label kind="guard" x="169" y="-144">t&gt;=3</label>
+			<label kind="assignment" x="127" y="-144">t=0</label>
+		</transition>
+		<transition id="id77">
+			<source ref="id64"/>
+			<target ref="id65"/>
+			<label kind="synchronisation" x="-816" y="127">E1_f3_down!</label>
+			<label kind="assignment" x="-739" y="187">f3down()</label>
+		</transition>
+		<transition id="id78">
+			<source ref="id66"/>
+			<target ref="id65"/>
+			<label kind="synchronisation" x="-765" y="-59">E1_f2_up!</label>
+			<label kind="assignment" x="-765" y="-25">f2up()</label>
+		</transition>
+		<transition id="id79">
+			<source ref="id67"/>
+			<target ref="id65"/>
+			<label kind="synchronisation" x="-765" y="34">E1_f2_down!</label>
+			<label kind="assignment" x="-765" y="68">f2down()</label>
+		</transition>
+		<transition id="id80">
+			<source ref="id68"/>
+			<target ref="id65"/>
+			<label kind="synchronisation" x="-756" y="-170">E1_f1_up!</label>
+			<label kind="assignment" x="-799" y="-127">f1up()</label>
+		</transition>
+		<transition id="id81">
+			<source ref="id69"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-229" y="144">respondButton == 4</label>
+			<label kind="synchronisation" x="-221" y="170">f3_down_arrive!</label>
+			<nail x="-263" y="170"/>
+			<nail x="-51" y="170"/>
+		</transition>
+		<transition id="id82">
+			<source ref="id69"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-229" y="85">respondButton == 3</label>
+			<label kind="synchronisation" x="-221" y="110">f2_down_arrive!</label>
+			<nail x="-212" y="110"/>
+			<nail x="-119" y="110"/>
+		</transition>
+		<transition id="id83">
+			<source ref="id69"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-229" y="-8">respondButton == 2</label>
+			<label kind="synchronisation" x="-221" y="17">f2_up_arrive!</label>
+			<nail x="-187" y="17"/>
+			<nail x="-93" y="17"/>
+		</transition>
+		<transition id="id84">
+			<source ref="id69"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-229" y="-119">respondButton == 1</label>
+			<label kind="synchronisation" x="-221" y="-93">f1_up_arrive!</label>
+			<nail x="-221" y="-93"/>
+			<nail x="-110" y="-93"/>
+		</transition>
+		<transition id="id85">
+			<source ref="id65"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-493" y="0">direction == 0</label>
+			<label kind="assignment" x="-459" y="17">t=0</label>
+		</transition>
+		<transition id="id86">
+			<source ref="id70"/>
+			<target ref="id63"/>
+			<label kind="guard" x="25" y="-8">t&gt;=3</label>
+			<label kind="assignment" x="-17" y="17">t=0,doorOpen=true</label>
+		</transition>
+		<transition id="id87">
+			<source ref="id71"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-416" y="-59">currentPos &gt;= targetFloor</label>
+			<label kind="assignment" x="-341" y="-34">t=0</label>
+		</transition>
+		<transition id="id88">
+			<source ref="id72"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-450" y="34">currentPos &lt;= targetFloor</label>
+			<label kind="assignment" x="-323" y="68">t=0</label>
+		</transition>
+		<transition id="id89">
+			<source ref="id74"/>
+			<target ref="id72"/>
+			<label kind="assignment" x="-374" y="195">currentPos = currentPos - 1</label>
+			<nail x="-314" y="110"/>
+			<nail x="-314" y="110"/>
+		</transition>
+		<transition id="id90">
+			<source ref="id72"/>
+			<target ref="id74"/>
+			<label kind="guard" x="-671" y="144">t&gt;=1 and currentPos &gt; targetFloor</label>
+			<label kind="assignment" x="-424" y="170">t=0</label>
+			<nail x="-399" y="212"/>
+		</transition>
+		<transition id="id91">
+			<source ref="id73"/>
+			<target ref="id71"/>
+			<label kind="assignment" x="-340" y="-221">currentPos = currentPos + 1</label>
+			<nail x="-314" y="-187"/>
+		</transition>
+		<transition id="id92">
+			<source ref="id71"/>
+			<target ref="id73"/>
+			<label kind="guard" x="-603" y="-153">t&gt;=1 and currentPos &lt; targetFloor</label>
+			<label kind="assignment" x="-391" y="-136">t=0</label>
+			<nail x="-408" y="-110"/>
+		</transition>
+		<transition id="id93">
+			<source ref="id65"/>
+			<target ref="id72"/>
+			<label kind="guard" x="-612" y="59">direction == 2</label>
+			<label kind="assignment" x="-528" y="76">t=0</label>
+		</transition>
+		<transition id="id94">
+			<source ref="id65"/>
+			<target ref="id71"/>
+			<label kind="guard" x="-544" y="-51">direction == 1</label>
+			<label kind="assignment" x="-510" y="-34">t=0</label>
+		</transition>
+		<transition id="id95">
+			<source ref="id62"/>
+			<target ref="id64"/>
+			<label kind="synchronisation" x="-935" y="127">f3_down?</label>
+			<nail x="-841" y="204"/>
+			<nail x="-841" y="204"/>
+		</transition>
+		<transition id="id96">
+			<source ref="id62"/>
+			<target ref="id67"/>
+			<label kind="synchronisation" x="-867" y="59">f2_down?</label>
+			<nail x="-842" y="76"/>
+		</transition>
+		<transition id="id97">
+			<source ref="id62"/>
+			<target ref="id66"/>
+			<label kind="synchronisation" x="-850" y="-93">f2_up?</label>
+			<nail x="-842" y="-59"/>
+		</transition>
+		<transition id="id98">
+			<source ref="id62"/>
+			<target ref="id68"/>
+			<label kind="synchronisation" x="-884" y="-170">f1_up?</label>
+			<nail x="-833" y="-153"/>
+		</transition>
+	</template>
+	<template>
+		<name>elevator2</name>
+		<declaration>clock t;
+int targetFloor = 10;
+int currentPos = 10;
+int respondButton = 0;// 0:none;1:f1_up;2:f2_up;3:f2_down;4:f3_down
+int direction = 0;// 0:wait, 1up, 2down
+bool doorOpen = false;
+void f1up(){
+    targetFloor = 10;
+    respondButton = 1;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}
+void f2up(){
+    targetFloor = 20;
+    respondButton = 2;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}
+void f2down(){
+    targetFloor = 20;
+    respondButton = 3;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}
+void f3down(){
+    targetFloor = 30;
+    respondButton = 4;
+    if(currentPos==targetFloor){direction = 0;}
+    if(currentPos&gt;targetFloor){direction = 2;}
+    if(currentPos&lt;targetFloor){direction = 1;}
+}</declaration>
+		<location id="id99" x="161" y="-263">
+			<name x="151" y="-297">stop_closing_door</name>
+			<label kind="invariant" x="151" y="-246">t&lt;=3</label>
+		</location>
+		<location id="id100" x="-910" y="17">
+			<name x="-1062" y="-8">stop_door_closed</name>
+		</location>
+		<location id="id101" x="161" y="17">
+			<name x="178" y="60">stop_door_opened</name>
+			<label kind="invariant" x="151" y="34">t&lt;=3</label>
+		</location>
+		<location id="id102" x="-782" y="255">
+			<committed/>
+		</location>
+		<location id="id103" x="-655" y="17">
+			<name x="-671" y="-34">move_prepare</name>
+			<committed/>
+		</location>
+		<location id="id104" x="-790" y="-59">
+			<committed/>
+		</location>
+		<location id="id105" x="-790" y="76">
+			<committed/>
+		</location>
+		<location id="id106" x="-790" y="-195">
+			<committed/>
+		</location>
+		<location id="id107" x="-264" y="17">
+			<name x="-315" y="-17">open_prepare</name>
+			<committed/>
+		</location>
+		<location id="id108" x="-51" y="17">
+			<name x="-127" y="-25">stop_opening_door</name>
+			<label kind="invariant" x="-61" y="34">t&lt;=3</label>
+		</location>
+		<location id="id109" x="-366" y="-76">
+			<name x="-376" y="-110">up</name>
+			<label kind="invariant" x="-348" y="-85">t&lt;=1</label>
+		</location>
+		<location id="id110" x="-366" y="93">
+			<name x="-376" y="59">down</name>
+			<label kind="invariant" x="-374" y="110">t&lt;=1</label>
+		</location>
+		<location id="id111" x="-365" y="-212">
+			<committed/>
+		</location>
+		<location id="id112" x="-348" y="229">
+			<committed/>
+		</location>
+		<init ref="id100"/>
+		<transition id="id113">
+			<source ref="id99"/>
+			<target ref="id100"/>
+			<label kind="guard" x="-900" y="-284">t&gt;=3</label>
+			<label kind="assignment" x="-900" y="-250">t=0,doorOpen=false</label>
+			<nail x="-909" y="-263"/>
+		</transition>
+		<transition id="id114">
+			<source ref="id101"/>
+			<target ref="id99"/>
+			<label kind="guard" x="169" y="-144">t&gt;=3</label>
+			<label kind="assignment" x="127" y="-144">t=0</label>
+		</transition>
+		<transition id="id115">
+			<source ref="id102"/>
+			<target ref="id103"/>
+			<label kind="synchronisation" x="-816" y="127">E2_f3_down!</label>
+			<label kind="assignment" x="-739" y="187">f3down()</label>
+		</transition>
+		<transition id="id116">
+			<source ref="id104"/>
+			<target ref="id103"/>
+			<label kind="synchronisation" x="-765" y="-59">E2_f2_up!</label>
+			<label kind="assignment" x="-765" y="-25">f2up()</label>
+		</transition>
+		<transition id="id117">
+			<source ref="id105"/>
+			<target ref="id103"/>
+			<label kind="synchronisation" x="-765" y="34">E2_f2_down!</label>
+			<label kind="assignment" x="-765" y="68">f2down()</label>
+		</transition>
+		<transition id="id118">
+			<source ref="id106"/>
+			<target ref="id103"/>
+			<label kind="synchronisation" x="-756" y="-170">E2_f1_up!</label>
+			<label kind="assignment" x="-799" y="-127">f1up()</label>
+		</transition>
+		<transition id="id119">
+			<source ref="id107"/>
+			<target ref="id108"/>
+			<label kind="guard" x="-229" y="144">respondButton == 4</label>
+			<label kind="synchronisation" x="-221" y="170">f3_down_arrive!</label>
+			<nail x="-263" y="170"/>
+			<nail x="-51" y="170"/>
+		</transition>
+		<transition id="id120">
+			<source ref="id107"/>
+			<target ref="id108"/>
+			<label kind="guard" x="-229" y="85">respondButton == 3</label>
+			<label kind="synchronisation" x="-221" y="110">f2_down_arrive!</label>
+			<nail x="-212" y="110"/>
+			<nail x="-119" y="110"/>
+		</transition>
+		<transition id="id121">
+			<source ref="id107"/>
+			<target ref="id108"/>
+			<label kind="guard" x="-229" y="-8">respondButton == 2</label>
+			<label kind="synchronisation" x="-221" y="17">f2_up_arrive!</label>
+			<nail x="-187" y="17"/>
+			<nail x="-93" y="17"/>
+		</transition>
+		<transition id="id122">
+			<source ref="id107"/>
+			<target ref="id108"/>
+			<label kind="guard" x="-229" y="-119">respondButton == 1</label>
+			<label kind="synchronisation" x="-221" y="-93">f1_up_arrive!</label>
+			<nail x="-221" y="-93"/>
+			<nail x="-110" y="-93"/>
+		</transition>
+		<transition id="id123">
+			<source ref="id103"/>
+			<target ref="id107"/>
+			<label kind="guard" x="-493" y="0">direction == 0</label>
+			<label kind="assignment" x="-459" y="17">t=0</label>
+		</transition>
+		<transition id="id124">
+			<source ref="id108"/>
+			<target ref="id101"/>
+			<label kind="guard" x="25" y="-8">t&gt;=3</label>
+			<label kind="assignment" x="-17" y="17">t=0,doorOpen=true</label>
+		</transition>
+		<transition id="id125">
+			<source ref="id109"/>
+			<target ref="id107"/>
+			<label kind="guard" x="-416" y="-59">currentPos &gt;= targetFloor</label>
+			<label kind="assignment" x="-341" y="-34">t=0</label>
+		</transition>
+		<transition id="id126">
+			<source ref="id110"/>
+			<target ref="id107"/>
+			<label kind="guard" x="-450" y="34">currentPos &lt;= targetFloor</label>
+			<label kind="assignment" x="-323" y="68">t=0</label>
+		</transition>
+		<transition id="id127">
+			<source ref="id112"/>
+			<target ref="id110"/>
+			<label kind="assignment" x="-374" y="195">currentPos = currentPos - 1</label>
+			<nail x="-314" y="110"/>
+			<nail x="-314" y="110"/>
+		</transition>
+		<transition id="id128">
+			<source ref="id110"/>
+			<target ref="id112"/>
+			<label kind="guard" x="-671" y="144">t&gt;=1 and currentPos &gt; targetFloor</label>
+			<label kind="assignment" x="-424" y="170">t=0</label>
+			<nail x="-399" y="212"/>
+		</transition>
+		<transition id="id129">
+			<source ref="id111"/>
+			<target ref="id109"/>
+			<label kind="assignment" x="-340" y="-221">currentPos = currentPos + 1</label>
+			<nail x="-314" y="-187"/>
+		</transition>
+		<transition id="id130">
+			<source ref="id109"/>
+			<target ref="id111"/>
+			<label kind="guard" x="-603" y="-153">t&gt;=1 and currentPos &lt; targetFloor</label>
+			<label kind="assignment" x="-391" y="-136">t=0</label>
+			<nail x="-408" y="-110"/>
+		</transition>
+		<transition id="id131">
+			<source ref="id103"/>
+			<target ref="id110"/>
+			<label kind="guard" x="-612" y="59">direction == 2</label>
+			<label kind="assignment" x="-528" y="76">t=0</label>
+		</transition>
+		<transition id="id132">
+			<source ref="id103"/>
+			<target ref="id109"/>
+			<label kind="guard" x="-544" y="-51">direction == 1</label>
+			<label kind="assignment" x="-510" y="-34">t=0</label>
+		</transition>
+		<transition id="id133">
+			<source ref="id100"/>
+			<target ref="id102"/>
+			<label kind="synchronisation" x="-935" y="127">f3_down?</label>
+			<nail x="-841" y="204"/>
+			<nail x="-841" y="204"/>
+		</transition>
+		<transition id="id134">
+			<source ref="id100"/>
+			<target ref="id105"/>
+			<label kind="synchronisation" x="-867" y="59">f2_down?</label>
+			<nail x="-842" y="76"/>
+		</transition>
+		<transition id="id135">
+			<source ref="id100"/>
+			<target ref="id104"/>
+			<label kind="synchronisation" x="-850" y="-93">f2_up?</label>
+			<nail x="-842" y="-59"/>
+		</transition>
+		<transition id="id136">
+			<source ref="id100"/>
+			<target ref="id106"/>
+			<label kind="synchronisation" x="-884" y="-170">f1_up?</label>
+			<nail x="-833" y="-153"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+// List one or more processes to be composed into a system.
+system floor_3_down,floor_2_up,floor_2_down,floor_1_up,elevator2,elevator1,Passenger;
+</system>
+	<queries>
+		<query>
+			<formula>A[] (elevator2.stop_door_closed or elevator2.stop_opening_door or elevator2.stop_door_opened or elevator2.stop_closing_door) imply (elevator2.currentPos == 10 or elevator2.currentPos == 20 or elevator2.currentPos == 30)</formula>
+			<comment/>
+			<option key="--diagnostic" value="1"/>
+			<result outcome="success" type="quality" timestamp="2024-06-14 17:42:13 +0800">
+				<option key="--diagnostic" value="1"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] (elevator1.stop_door_closed or elevator1.stop_opening_door or elevator1.stop_door_opened or elevator1.stop_closing_door) imply (elevator1.currentPos == 10 or elevator1.currentPos == 20 or elevator1.currentPos == 30)</formula>
+			<comment/>
+			<option key="--diagnostic" value="2"/>
+			<result outcome="success" type="quality" timestamp="2024-06-14 17:43:02 +0800">
+				<option key="--diagnostic" value="2"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] ((elevator2.up or elevator2.down) imply elevator2.doorOpen == false)</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2024-06-14 17:41:30 +0800">
+			</result>
+		</query>
+		<query>
+			<formula>A[] ((elevator1.up or elevator1.down) imply elevator1.doorOpen == false)</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2024-06-14 17:41:33 +0800">
+			</result>
+		</query>
+		<query>
+			<formula>A[] elevator2.currentPos &gt;= 10 and elevator2.currentPos &lt;= 30</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2024-06-14 17:41:36 +0800">
+			</result>
+		</query>
+		<query>
+			<formula>A[] elevator1.currentPos &gt;= 10 and elevator1.currentPos &lt;= 30</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2024-06-14 17:41:38 +0800">
+			</result>
+		</query>
+		<query>
+			<formula>A[] ! deadlock</formula>
+			<comment/>
+			<result outcome="success" type="quality" timestamp="2024-06-14 17:41:41 +0800">
+			</result>
+		</query>
+	</queries>
+</nta>
