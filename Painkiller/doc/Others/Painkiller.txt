@@ -1,0 +1,22 @@
+1.available operation/event
+
+    //available user operation
+
+    doctor:
+        "set_baseline":  e.g. set_baseline@0.01
+        "set_bolus":  e.g. set_bolus@0.2
+        "baseline_on"
+        "baseline_off"
+    
+    patient:
+        "request_bolus"
+
+    
+
+2.example case
+
+    set_baseline@0.01, set_bolus@0.2
+    0min  baseline_on
+    120min request_bolus
+    121min request_bolus
+    122min request_bolus (no injection, reach hour limit)
