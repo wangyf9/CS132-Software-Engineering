@@ -18,6 +18,7 @@
 - System Events:
   - Door open, door closed
   - Elevator arrive at each floor
+![elevator](/Image/elevator.png)
 
 ## Banking system
 
@@ -29,6 +30,7 @@
 - An interface for ATM
   - deposit & withdraw cash
   - query account details
+![bank](/Image/bank.png)
 
 ## Painkiller-Injection system
 
@@ -43,5 +45,6 @@
 - Interface
   - For physician
   - Patient button
+![painkiller](/Image/painkiller.png)
 
 For more details, you can view the subfolder readme to learn more about these projects.
