@@ -14,8 +14,9 @@ pip install pyzmq
 - /backend/bank.py - database function
 
 ## 3. How to Run the Code
+
 First, run /backend/main.py in Terminal to setup the judger.
-Then, run /frontend/Controller.py.py in ANOTHER Terminal to set up UI.
+Then, run /frontend/Controller.py in ANOTHER Terminal to set up UI.(There exists some problems in Controller.py, therefore, you should delete the `from . ` when you want to run the program code to start the app. But if you want to run the test, this part should not be deleted !!!)
 
 ## 4. Available operation/event
   For this part, you can refer to the requirement and user manual document to learn about details.
